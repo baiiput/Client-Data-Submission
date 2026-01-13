@@ -1,0 +1,2399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Data Submission - Starlink Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0f172a;
+            --secondary-bg: #1e293b;
+            --card-bg: #334155;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #475569;
+            --input-bg: #1e293b;
+            --glass-bg: rgba(30, 41, 59, 0.95);
+            --glow-blue: rgba(59, 130, 246, 0.3);
+            --glow-green: rgba(16, 185, 129, 0.3);
+            --gradient-1: linear-gradient(135deg, #1e40af 0%, #3730a3 100%);
+            --gradient-2: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --gradient-3: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary-bg);
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(29, 78, 216, 0.08) 0%, transparent 50%),
+                linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(29, 78, 216, 0.05) 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-2);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* 🌈 SHEET SELECTION GLOW */
+        .sheet-selection:hover {
+            box-shadow: 0 0 15px var(--glow-blue);
+            transition: box-shadow 0.3s ease;
+        }
+
+        /* 🎯 COMPACT HEADER */
+        .header {
+            background: var(--gradient-1);
+            padding: 15px 25px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: slideShine 4s infinite;
+        }
+
+        @keyframes slideShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+        }
+
+        /* 🎨 FORM STYLING */
+        .form-container {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ⚠️ REQUIRED FIELD INDICATOR */
+        .required-indicator {
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-left: 3px;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* ⚠️ REQUIRED FIELD BORDER */
+        .form-group input.required-field,
+        .form-group textarea.required-field,
+        .form-group select.required-field {
+            border-left: 3px solid rgba(239, 68, 68, 0.5);
+        }
+
+        .form-group input.required-field:focus,
+        .form-group textarea.required-field:focus,
+        .form-group select.required-field:focus {
+            border-left: 3px solid #ef4444;
+        }
+
+        /* ⚠️ IMPORTANT NOTICE BOX */
+        .important-notice {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+            border: 1.5px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .important-notice-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .important-notice-text {
+            font-size: 0.85rem;
+            color: #fca5a5;
+            line-height: 1.4;
+        }
+
+        .important-notice-text strong {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 🎨 ELEGANT FORM INPUT STYLES - Base Focus */
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none !important;
+            border-color: var(--accent-color);
+            background: var(--card-bg);
+            transform: translateY(-1px);
+        }
+
+        /* ✨ ELEGANT HOVER EFFECTS */
+        .form-group input:hover,
+        .form-group textarea:hover,
+        .form-group select:hover {
+            border-color: #64748b;
+            background: #3f4956;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 🌟 GLOW ANIMATIONS - Pure light effect */
+        @keyframes blueGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(59, 130, 246, 0.4), 0 0 15px rgba(59, 130, 246, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.4);
+            }
+        }
+
+        @keyframes greenGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(16, 185, 129, 0.4), 0 0 15px rgba(16, 185, 129, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.8), 0 0 30px rgba(16, 185, 129, 0.4);
+            }
+        }
+
+        @keyframes purpleGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(139, 92, 246, 0.4), 0 0 15px rgba(139, 92, 246, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.8), 0 0 30px rgba(139, 92, 246, 0.4);
+            }
+        }
+
+        @keyframes goldGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(245, 158, 11, 0.4), 0 0 15px rgba(245, 158, 11, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(245, 158, 11, 0.8), 0 0 30px rgba(245, 158, 11, 0.4);
+            }
+        }
+
+        @keyframes cyanGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(6, 182, 212, 0.4), 0 0 15px rgba(6, 182, 212, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(6, 182, 212, 0.8), 0 0 30px rgba(6, 182, 212, 0.4);
+            }
+        }
+
+        @keyframes pinkGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(236, 72, 153, 0.4), 0 0 15px rgba(236, 72, 153, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(236, 72, 153, 0.8), 0 0 30px rgba(236, 72, 153, 0.4);
+            }
+        }
+
+        @keyframes violetGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(168, 85, 247, 0.4), 0 0 15px rgba(168, 85, 247, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(168, 85, 247, 0.8), 0 0 30px rgba(168, 85, 247, 0.4);
+            }
+        }
+
+        @keyframes redGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(239, 68, 68, 0.4), 0 0 15px rgba(239, 68, 68, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.8), 0 0 30px rgba(239, 68, 68, 0.4);
+            }
+        }
+
+        @keyframes emeraldGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(34, 197, 94, 0.4), 0 0 15px rgba(34, 197, 94, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 30px rgba(34, 197, 94, 0.4);
+            }
+        }
+
+        @keyframes tealGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(45, 212, 191, 0.4), 0 0 15px rgba(45, 212, 191, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(45, 212, 191, 0.8), 0 0 30px rgba(45, 212, 191, 0.4);
+            }
+        }
+
+        /* 🎯 SPECIFIC INPUT GLOW EFFECTS BY ID */
+
+        /* 👤 Nama Client - Blue Glow */
+        #nama:focus {
+            border-color: #3b82f6 !important;
+            background: var(--card-bg) !important;
+            animation: blueGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 📧 Login Gmail - Green Glow */
+        #loginGmail:focus {
+            border-color: #10b981 !important;
+            background: var(--card-bg) !important;
+            animation: greenGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 🛰️ Login Starlink - Purple Glow */
+        #loginStarlink:focus {
+            border-color: #8b5cf6 !important;
+            background: var(--card-bg) !important;
+            animation: purpleGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 🔄 Login Alternatif - Gold Glow */
+        #loginAlternatif:focus {
+            border-color: #f59e0b !important;
+            background: var(--card-bg) !important;
+            animation: goldGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 🔢 Account Number - Cyan Glow */
+        #accNo:focus {
+            border-color: #06b6d4 !important;
+            background: var(--card-bg) !important;
+            animation: cyanGlow 2s ease-in-out infinite !important;
+        }
+
+        /* ✉️ Email Client - Pink Glow */
+        #emailClient:focus {
+            border-color: #ec4899 !important;
+            background: var(--card-bg) !important;
+            animation: pinkGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 📞 Nomor CS - Violet Glow */
+        #nomorCS:focus {
+            border-color: #a855f7 !important;
+            background: var(--card-bg) !important;
+            animation: violetGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 📦 KIT Number - Red Glow */
+        #kitNumber:focus {
+            border-color: #ef4444 !important;
+            background: var(--card-bg) !important;
+            animation: redGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 🏷️ Serial Number - Violet Glow */
+        #serialNumber:focus {
+            border-color: #a855f7 !important;
+            background: var(--card-bg) !important;
+            animation: violetGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 🏠 Alamat - Emerald Glow */
+        #alamat:focus {
+            border-color: #22c55e !important;
+            background: var(--card-bg) !important;
+            animation: emeraldGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 🔑 Kode - Teal Glow */
+        #kode:focus {
+            border-color: #2dd4bf !important;
+            background: var(--card-bg) !important;
+            animation: tealGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 💳 Payment - Purple Glow */
+        #payment:focus {
+            border-color: #8b5cf6 !important;
+            background: var(--card-bg) !important;
+            animation: purpleGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 🆔 ID Transaksi - Blue Glow */
+        #idTransaksi:focus {
+            border-color: #3b82f6 !important;
+            background: var(--card-bg) !important;
+            animation: blueGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 📊 Status - Gold Glow */
+        #status:focus {
+            border-color: #f59e0b !important;
+            background: var(--card-bg) !important;
+            animation: goldGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 📦 Paket - Cyan Glow */
+        #paket:focus {
+            border-color: #06b6d4 !important;
+            background: var(--card-bg) !important;
+            animation: cyanGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 🔢 Last 4 Digit - Pink Glow */
+        #last4Digit:focus {
+            border-color: #ec4899 !important;
+            background: var(--card-bg) !important;
+            animation: pinkGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 📝 No Register - Violet Glow */
+        #noRegister:focus {
+            border-color: #a855f7 !important;
+            background: var(--card-bg) !important;
+            animation: violetGlow 2s ease-in-out infinite !important;
+        }
+
+        /* Custom Date Picker - Green Glow */
+        #customDateInput:focus {
+            border-color: #10b981 !important;
+            background: var(--card-bg) !important;
+            animation: greenGlow 2s ease-in-out infinite !important;
+        }
+
+        /* 🔥 FORCE GLOW ANIMATIONS */
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            animation-duration: 2s !important;
+            animation-iteration-count: infinite !important;
+            animation-timing-function: ease-in-out !important;
+            animation-direction: alternate !important;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 85px;
+            font-family: inherit;
+            line-height: 1.4;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233b82f6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .form-group select option {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 10px;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        /* 🎯 COMPACT SHEET SELECTION */
+        .sheet-selection {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .sheet-selection::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-2);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .sheet-selection h3 {
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 14px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: 1.5px solid var(--border-color);
+            background: var(--input-bg);
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .radio-item:hover {
+            background: var(--card-bg);
+            border-color: var(--accent-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .radio-item input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"]:checked + label {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .radio-item:has(input[type="radio"]:checked) {
+            background: var(--glow-blue);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px var(--glow-blue);
+        }
+
+        .radio-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        /* 🔐 LOGIN FIELDS SELECTION */
+        .login-selection {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-selection::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-2);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .login-selection h3 {
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 14px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: 1.5px solid var(--border-color);
+            background: var(--input-bg);
+            flex: 1;
+            min-width: 140px;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .checkbox-item:hover {
+            background: var(--card-bg);
+            border-color: var(--accent-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + label {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .checkbox-item:has(input[type="checkbox"]:checked) {
+            background: var(--glow-blue);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px var(--glow-blue);
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        /* 📅 MODERN DATE PICKER MODAL */
+        .custom-date-picker {
+            position: relative;
+        }
+
+        .custom-date-picker input {
+            cursor: pointer;
+        }
+
+        .date-picker-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .date-picker-modal.show {
+            display: flex;
+            animation: modalFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+            to {
+                opacity: 1;
+                backdrop-filter: blur(12px);
+            }
+        }
+
+        .date-picker-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.9));
+            backdrop-filter: blur(12px);
+            cursor: pointer;
+        }
+
+        .date-picker-container {
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .date-picker-card {
+            background: linear-gradient(145deg, rgba(51, 65, 85, 0.95), rgba(30, 41, 59, 0.98));
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.4),
+                0 16px 32px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            width: 400px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .picker-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(29, 78, 216, 0.05));
+        }
+
+        .header-title h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+            background: linear-gradient(135deg, #f1f5f9, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-title p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        .close-button {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .close-button:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #ffffff;
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .calendar-navigation {
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .nav-button {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-button:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+            color: #ffffff;
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+        }
+
+        .month-year-display {
+            flex: 1;
+            text-align: center;
+        }
+
+        .month-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .calendar-grid {
+            padding: 20px 24px;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 8px 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(148, 163, 184, 0.1);
+            border-radius: 8px;
+        }
+
+        .dates-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .date-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(51, 65, 85, 0.5);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .date-cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(29, 78, 216, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .date-cell:hover::before {
+            opacity: 1;
+        }
+
+        .date-cell:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.1));
+            border-color: rgba(59, 130, 246, 0.4);
+            color: #ffffff;
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .date-cell.selected {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            font-weight: 700;
+            border-color: #10b981;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            transform: scale(1.1);
+        }
+
+        .date-cell.selected::before {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            opacity: 1;
+        }
+
+        .date-cell.other-month {
+            color: var(--text-muted);
+            opacity: 0.4;
+            background: rgba(30, 41, 59, 0.3);
+        }
+
+        .date-cell.other-month:hover {
+            opacity: 0.8;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(29, 78, 216, 0.08));
+            color: #93c5fd;
+        }
+
+        .date-cell.today {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            font-weight: 700;
+            border-color: #f59e0b;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+            position: relative;
+        }
+
+        .date-cell.today::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .date-cell.today:hover {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            transform: scale(1.05);
+        }
+
+        .picker-actions {
+            padding: 16px 24px 24px;
+            display: flex;
+            gap: 12px;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            background: rgba(30, 41, 59, 0.3);
+        }
+
+        .action-button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .action-button.today {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-button.today:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .action-button.clear {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .action-button.clear:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1));
+            color: #ffffff;
+            border-color: rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .date-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        /* 🚀 BEAUTIFUL SUBMIT BUTTON */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient-3);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 10px 25px rgba(16, 185, 129, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 15px 35px rgba(16, 185, 129, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .submit-btn:disabled::before {
+            display: none;
+        }
+
+        /* 🎯 COMPACT LOADING */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .loading .spinner {
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            border-top: 2px solid var(--accent-color);
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
+        }
+
+        .loading p {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 🔔 BEAUTIFUL ALERTS */
+        .alert {
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-weight: 500;
+            display: none;
+            border: 1px solid;
+            backdrop-filter: blur(10px);
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .alert.success {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--success-color);
+            color: #6ee7b7;
+            box-shadow: 0 4px 12px var(--glow-green);
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--error-color);
+            color: #fca5a5;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .alert br {
+            display: block;
+            margin: 4px 0;
+        }
+
+        /* 📱 COMPACT FORM LAYOUT */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row.triple {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .field-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        /* 🎨 ENHANCED VISUAL EFFECTS */
+        .form-group {
+            animation: fadeInUp 0.4s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.05s; }
+        .form-group:nth-child(2) { animation-delay: 0.1s; }
+        .form-group:nth-child(3) { animation-delay: 0.15s; }
+        .form-group:nth-child(4) { animation-delay: 0.2s; }
+        .form-group:nth-child(5) { animation-delay: 0.25s; }
+        .form-group:nth-child(6) { animation-delay: 0.3s; }
+        .form-group:nth-child(7) { animation-delay: 0.35s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 🎯 HIDDEN ELEMENTS */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 📱 RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                margin: 0;
+                border-radius: 16px;
+            }
+
+            .header {
+                padding: 12px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .header p {
+                font-size: 0.8rem;
+            }
+
+            .form-container {
+                padding: 15px;
+            }
+
+            .form-row,
+            .form-row.triple {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .radio-group,
+            .checkbox-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .radio-item,
+            .checkbox-item {
+                min-width: unset;
+            }
+
+            .sheet-selection,
+            .login-selection {
+                padding: 12px;
+            }
+
+            /* Mobile date picker modal adjustments */
+            .date-picker-modal {
+                padding: 10px;
+            }
+
+            .date-picker-card {
+                width: 100%;
+                max-width: 360px;
+                border-radius: 20px;
+            }
+
+            .picker-header {
+                padding: 20px 20px 12px;
+            }
+
+            .header-title h3 {
+                font-size: 1.1rem;
+            }
+
+            .header-title p {
+                font-size: 0.8rem;
+            }
+
+            .close-button {
+                width: 36px;
+                height: 36px;
+            }
+
+            .calendar-navigation {
+                padding: 12px 20px;
+            }
+
+            .nav-button {
+                width: 32px;
+                height: 32px;
+            }
+
+            .month-name {
+                font-size: 1rem;
+            }
+
+            .calendar-grid {
+                padding: 16px 20px;
+            }
+
+            .weekday {
+                padding: 6px 2px;
+                font-size: 0.7rem;
+            }
+
+            .date-cell {
+                font-size: 0.85rem;
+                min-height: 36px;
+            }
+
+            .picker-actions {
+                padding: 12px 20px 20px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .action-button {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* 🎯 CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-hover);
+        }
+
+        /* 🔥 FOCUS IMPROVEMENTS */
+        .form-group input:focus-visible,
+        .form-group textarea:focus-visible,
+        .form-group select:focus-visible {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        /* ✨ SUBMIT BUTTON GLOW */
+        .submit-btn:focus {
+            box-shadow: 
+                0 10px 25px rgba(16, 185, 129, 0.4),
+                0 0 0 3px var(--glow-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 🎯 COMPACT HEADER -->
+        <div class="header">
+            <div class="header-content">
+                <h1>📡 Client Data Submission</h1>
+                <p>Elegant form untuk submit data client ke Google Sheets</p>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <div class="alert" id="alertBox"></div>
+
+            <!-- ⚠️ IMPORTANT NOTICE -->
+            <div class="important-notice">
+                <div class="important-notice-icon">⚠️</div>
+                <div class="important-notice-text">
+                    <strong>PERHATIAN:</strong> Field dengan tanda <span style="color: #ef4444; font-weight: 700;">*</span> adalah <strong>WAJIB DIISI</strong>. Pastikan semua data terisi dengan benar sebelum submit!
+                </div>
+            </div>
+
+            <form id="clientForm">
+                <!-- 🎯 COMPACT SHEET SELECTION -->
+                <div class="sheet-selection">
+                    <h3>🎯 Target Sheet</h3>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="clientAktif" name="targetSheet" value="Client Aktif" checked>
+                            <label for="clientAktif">Client Aktif</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="clientNonAktif" name="targetSheet" value="Client Non Aktif">
+                            <label for="clientNonAktif">Client Non Aktif</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="clientLepas" name="targetSheet" value="Client Lepas">
+                            <label for="clientLepas">Client Lepas</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🔐 LOGIN FIELDS SELECTION -->
+                <div class="login-selection">
+                    <h3>🔐 Pilih Field Login</h3>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showLoginGmail" name="showLoginGmail">
+                            <label for="showLoginGmail">📧 Login Gmail</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showLoginStarlink" name="showLoginStarlink" checked>
+                            <label for="showLoginStarlink">🛰️ Login Starlink</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showLoginAlternatif" name="showLoginAlternatif">
+                            <label for="showLoginAlternatif">🔄 Login Alternatif</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 👤 BASIC INFO -->
+                <div class="form-group">
+                    <label for="nama">👤 Nama Client <span class="required-indicator">*</span></label>
+                    <input type="text" id="nama" name="nama" placeholder="Nama lengkap client" class="required-field" required>
+                    <div class="field-hint" style="color: #fca5a5;">⚠️ Wajib diisi - Nama lengkap client</div>
+                </div>
+
+                <!-- 🔐 DYNAMIC LOGIN FIELDS -->
+                <div class="form-group hidden" id="loginGmailGroup">
+                    <label for="loginGmail">📧 Login Gmail <span class="required-indicator">*</span></label>
+                    <textarea id="loginGmail" name="loginGmail" placeholder="email@gmail.com&#10;password123&#10;backup@email.com" class="required-field"></textarea>
+                    <div class="field-hint">⚠️ Minimal 1 login wajib diisi | Gunakan Enter untuk multiple login</div>
+                </div>
+
+                <div class="form-group" id="loginStarlinkGroup">
+                    <label for="loginStarlink">🛰️ Login Starlink <span class="required-indicator">*</span></label>
+                    <textarea id="loginStarlink" name="loginStarlink" placeholder="starlink@email.com&#10;password456&#10;starlink.backup@email.com" class="required-field"></textarea>
+                    <div class="field-hint">⚠️ Minimal 1 login wajib diisi | Gunakan Enter untuk multiple login</div>
+                </div>
+
+                <div class="form-group hidden" id="loginAlternatifGroup">
+                    <label for="loginAlternatif">🔄 Login Alternatif</label>
+                    <textarea id="loginAlternatif" name="loginAlternatif" placeholder="alternative@email.com&#10;altpassword789"></textarea>
+                    <div class="field-hint">Login cadangan (opsional - tidak wajib)</div>
+                </div>
+
+                <!-- 📞 CONTACT & ACCOUNT INFO - FIXED SINGLE ACCOUNT NUMBER -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="accNo">🔢 Account Number <span class="required-indicator">*</span></label>
+                        <input type="text" id="accNo" name="accNo" placeholder="ACC-123-456-789" class="required-field" required>
+                        <div class="field-hint" style="color: #fca5a5;">⚠️ Wajib diisi</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="emailClient">✉️ Email Client <span class="required-indicator">*</span></label>
+                        <input type="email" id="emailClient" name="emailClient" placeholder="client@email.com" class="required-field" required>
+                        <div class="field-hint" style="color: #fca5a5;">⚠️ Wajib diisi</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nomorCS">📞 Nomor CS <span class="required-indicator">*</span></label>
+                        <input type="tel" id="nomorCS" name="nomorCS" placeholder="628123456789" class="required-field" required>
+                        <div class="field-hint">⚠️ Wajib diisi | Format: 08xx atau 62xx (auto-format)</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="kitNumber">📦 KIT Number</label>
+                        <input type="text" id="kitNumber" name="kitNumber" placeholder="KIT123456789">
+                        <div class="field-hint">Opsional</div>
+                    </div>
+                </div>
+
+                <!-- SERIAL NUMBER - STANDALONE FIELD -->
+                <div class="form-row single">
+                    <div class="form-group">
+                        <label for="serialNumber">🏷️ Serial Number</label>
+                        <input type="text" id="serialNumber" name="serialNumber" placeholder="SN987654321">
+                    </div>
+                </div>
+
+                <!-- 🏠 ADDRESS -->
+                <div class="form-group">
+                    <label for="alamat">🏠 Alamat Lengkap <span class="required-indicator">*</span></label>
+                    <textarea id="alamat" name="alamat" placeholder="Jalan Contoh No. 123&#10;Kelurahan, Kecamatan&#10;Kota, Provinsi 12345" class="required-field" required></textarea>
+                    <div class="field-hint">⚠️ Wajib diisi | Gunakan Enter untuk baris baru</div>
+                </div>
+
+                <!-- 📅 PAYMENT & STATUS -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customDateInput">📅 Jatuh Tempo <span class="required-indicator">*</span></label>
+                        <div class="custom-date-picker">
+                            <input type="text" id="customDateInput" name="tanggalJatuhTempo" placeholder="DD/MM/YYYY" readonly class="required-field" required>
+                            <div class="field-hint">⚠️ Wajib diisi | Klik untuk memilih tanggal (GMT+7)</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="kode">🔑 Kode</label>
+                        <input type="text" id="kode" name="kode" placeholder="Kode referensi">
+                        <div class="field-hint">Opsional</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="payment">💳 Payment Method <span class="required-indicator">*</span></label>
+                        <select id="payment" name="payment" class="required-field" required>
+                            <option value="">Pilih payment...</option>
+                            <option value="TK-0900">TK-0900</option>
+                            <option value="BL-7519">BL-7519</option>
+                            <option value="M-2811">M-2811</option>
+                            <option value="J-1622">J-1622</option>
+                            <option value="O-1420">O-1420</option>
+                            <option value="L-7778">L-7778</option>
+                            <option value="L-3402">L-3402</option>
+                            <option value="Unknown">Unknown</option>
+                        </select>
+                        <div class="field-hint" style="color: #fca5a5;">⚠️ Wajib dipilih</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="idTransaksi">🆔 ID Transaksi</label>
+                        <input type="text" id="idTransaksi" name="idTransaksi" placeholder="TXN-123456">
+                        <div class="field-hint">Opsional</div>
+                    </div>
+                </div>
+
+                <div class="form-row triple">
+                    <div class="form-group">
+                        <label for="status">📊 Status</label>
+                        <select id="status" name="status">
+                            <option value="">Pilih status...</option>
+                            <option value="Terbayarkan">Terbayarkan</option>
+                            <option value="Active">Active</option>
+                            <option value="Migrasi">Migrasi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paket">📦 Paket</label>
+                        <select id="paket" name="paket">
+                            <option value="">Pilih paket...</option>
+                            <option value="Regular">Regular</option>
+                            <option value="Lite">Lite</option>
+                            <option value="Roam">Roam</option>
+                            <option value="Local Priority">Local Priority</option>
+                            <option value="International">International</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="last4Digit">🔢 Last 4 Digit</label>
+                        <select id="last4Digit" name="last4Digit">
+                            <option value="">Pilih...</option>
+                            <option value="1662">1662</option>
+                            <option value="2811">2811</option>
+                            <option value="7778">7778</option>
+                            <option value="1420">1420</option>
+                            <option value="8347">8347</option>
+                            <option value="0900">0900</option>
+                            <option value="3402">3402</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 📝 REGISTER -->
+                <div class="form-group">
+                    <label for="noRegister">📝 No Register</label>
+                    <input type="tel" id="noRegister" name="noRegister" placeholder="628123456789">
+                </div>
+
+                <!-- 🚀 SUBMIT BUTTON -->
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🚀 Submit Data Client
+                </button>
+
+                <div class="loading" id="loadingDiv">
+                    <div class="spinner"></div>
+                    <p>Menyimpan data client...</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 📅 DATE PICKER MODAL - NEW DESIGN -->
+    <div class="date-picker-modal" id="datePickerModal">
+        <div class="date-picker-overlay" id="datePickerOverlay"></div>
+        <div class="date-picker-container">
+            <div class="date-picker-card">
+                <div class="picker-header">
+                    <div class="header-title">
+                        <h3>📅 Pilih Tanggal</h3>
+                        <p>GMT+7 (Waktu Jakarta)</p>
+                    </div>
+                    <button type="button" id="closeDatePicker" class="close-button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="calendar-navigation">
+                    <button type="button" id="prevMonth" class="nav-button prev">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                    </button>
+                    <div class="month-year-display">
+                        <span id="currentMonth" class="month-name"></span>
+                    </div>
+                    <button type="button" id="nextMonth" class="nav-button next">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,6 15,12 9,18"></polyline>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="calendar-grid">
+                    <div class="weekdays">
+                        <div class="weekday">Min</div>
+                        <div class="weekday">Sen</div>
+                        <div class="weekday">Sel</div>
+                        <div class="weekday">Rab</div>
+                        <div class="weekday">Kam</div>
+                        <div class="weekday">Jum</div>
+                        <div class="weekday">Sab</div>
+                    </div>
+                    <div class="dates-container" id="datePickerDates"></div>
+                </div>
+
+                <div class="picker-actions">
+                    <button type="button" id="todayBtn" class="action-button today">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Hari Ini
+                    </button>
+                    <button type="button" id="clearDateBtn" class="action-button clear">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3,6 5,6 21,6"></polyline>
+                            <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"></path>
+                        </svg>
+                        Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔗 Load Centralized Configuration -->
+    <script src="config.js"></script>
+
+    <script>
+        // 🎯 JAVASCRIPT WITH ENHANCEMENTS
+        
+        const form = document.getElementById('clientForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingDiv = document.getElementById('loadingDiv');
+        const alertBox = document.getElementById('alertBox');
+
+        let isSubmitting = false;
+        let submitAttempts = 0;
+        const MAX_SUBMIT_ATTEMPTS = 3;
+        const SUBMIT_TIMEOUT = 30000;
+
+        let SCRIPT_URL;
+        try {
+            SCRIPT_URL = CONFIG.CUSTOM_APIS.client || CONFIG.API_URL;
+            console.log('✅ Using API URL from config:', SCRIPT_URL);
+        } catch (configError) {
+            SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+            console.warn('⚠️ Config not found, using fallback URL. Please update SCRIPT_URL!');
+        }
+
+        // 📞 NOMOR CS AUTO FORMATTER
+        function formatPhoneNumber(phoneNumber) {
+            // Remove all non-numeric characters
+            let cleaned = phoneNumber.replace(/[^0-9]/g, '');
+            
+            // Handle different input formats
+            if (cleaned.startsWith('62')) {
+                // Already in correct format (62xxxxxxxxxx)
+                return cleaned;
+            } else if (cleaned.startsWith('0')) {
+                // Remove leading 0 and add 62
+                return '62' + cleaned.substring(1);
+            } else if (cleaned.length >= 9 && !cleaned.startsWith('62')) {
+                // Assume it's missing country code
+                return '62' + cleaned;
+            }
+            
+            return cleaned;
+        }
+
+        // 📅 MODERN DATE PICKER MODAL WITH GMT+7
+        function initCustomDatePicker() {
+            const customDateInput = document.getElementById('customDateInput');
+            const datePickerModal = document.getElementById('datePickerModal');
+            const datePickerOverlay = document.getElementById('datePickerOverlay');
+            const currentMonthSpan = document.getElementById('currentMonth');
+            const prevMonthBtn = document.getElementById('prevMonth');
+            const nextMonthBtn = document.getElementById('nextMonth');
+            const closeDatePickerBtn = document.getElementById('closeDatePicker');
+            const datePickerDates = document.getElementById('datePickerDates');
+            const todayBtn = document.getElementById('todayBtn');
+            const clearDateBtn = document.getElementById('clearDateBtn');
+
+            let currentDate = new Date();
+            let selectedDate = null;
+
+            // GMT+7 timezone offset
+            const jakartaOffset = 7 * 60; // 7 hours in minutes
+
+            const monthNames = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+
+            function getJakartaDate(date = new Date()) {
+                const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+                return new Date(utc + (jakartaOffset * 60000));
+            }
+
+            function formatDateString(date) {
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+
+            function openModal() {
+                datePickerModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                renderCalendar();
+                
+                // Focus trap
+                setTimeout(() => {
+                    closeDatePickerBtn.focus();
+                }, 100);
+            }
+
+            function closeModal() {
+                datePickerModal.classList.remove('show');
+                document.body.style.overflow = '';
+                
+                // Return focus to input
+                setTimeout(() => {
+                    customDateInput.focus();
+                }, 100);
+            }
+
+            function renderCalendar() {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                
+                currentMonthSpan.textContent = `${monthNames[month]} ${year}`;
+                
+                // Clear previous dates
+                datePickerDates.innerHTML = '';
+                
+                // Get first day of month and how many days
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                const startingDayOfWeek = firstDay.getDay(); // 0 = Sunday
+                
+                // Adjust for Monday start (Indonesian calendar)
+                const adjustedStartDay = startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1;
+                
+                // Add empty cells for previous month
+                for (let i = 0; i < adjustedStartDay; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'date-cell other-month';
+                    const prevDate = new Date(year, month, 1 - adjustedStartDay + i);
+                    cell.textContent = prevDate.getDate();
+                    
+                    cell.addEventListener('click', function() {
+                        const newMonth = month - 1;
+                        const newYear = newMonth < 0 ? year - 1 : year;
+                        const adjustedMonth = newMonth < 0 ? 11 : newMonth;
+                        
+                        selectedDate = new Date(newYear, adjustedMonth, prevDate.getDate());
+                        customDateInput.value = formatDateString(selectedDate);
+                        closeModal();
+                    });
+                    
+                    datePickerDates.appendChild(cell);
+                }
+                
+                // Add days of current month
+                const today = getJakartaDate();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'date-cell';
+                    cell.textContent = day;
+                    cell.setAttribute('tabindex', '0');
+                    
+                    const cellDate = new Date(year, month, day);
+                    
+                    // Check if today
+                    if (cellDate.toDateString() === today.toDateString()) {
+                        cell.classList.add('today');
+                    }
+                    
+                    // Check if selected
+                    if (selectedDate && cellDate.toDateString() === selectedDate.toDateString()) {
+                        cell.classList.add('selected');
+                    }
+                    
+                    // Click handler
+                    cell.addEventListener('click', function() {
+                        selectedDate = new Date(year, month, day);
+                        customDateInput.value = formatDateString(selectedDate);
+                        closeModal();
+                    });
+                    
+                    // Keyboard handler
+                    cell.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            this.click();
+                        }
+                    });
+                    
+                    datePickerDates.appendChild(cell);
+                }
+                
+                // Fill remaining cells with next month days
+                const totalCells = datePickerDates.children.length;
+                const remainingCells = 42 - totalCells; // 6 rows × 7 days
+                for (let i = 1; i <= remainingCells && totalCells < 42; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'date-cell other-month';
+                    cell.textContent = i;
+                    
+                    cell.addEventListener('click', function() {
+                        const newMonth = month + 1;
+                        const newYear = newMonth > 11 ? year + 1 : year;
+                        const adjustedMonth = newMonth > 11 ? 0 : newMonth;
+                        
+                        selectedDate = new Date(newYear, adjustedMonth, i);
+                        customDateInput.value = formatDateString(selectedDate);
+                        closeModal();
+                    });
+                    
+                    datePickerDates.appendChild(cell);
+                }
+            }
+
+            // Event listeners
+            customDateInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+                openModal();
+            });
+
+            customDateInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openModal();
+                }
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                    e.preventDefault();
+                    this.value = '';
+                    selectedDate = null;
+                }
+            });
+
+            prevMonthBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+
+            nextMonthBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+
+            closeDatePickerBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeModal();
+            });
+
+            datePickerOverlay.addEventListener('click', function() {
+                closeModal();
+            });
+
+            todayBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const today = getJakartaDate();
+                selectedDate = today;
+                customDateInput.value = formatDateString(selectedDate);
+                currentDate = new Date(today);
+                closeModal();
+            });
+
+            clearDateBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                selectedDate = null;
+                customDateInput.value = '';
+                closeModal();
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (!datePickerModal.classList.contains('show')) return;
+                
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+                
+                // Arrow key navigation for date cells
+                const focusedElement = document.activeElement;
+                if (focusedElement && focusedElement.classList.contains('date-cell')) {
+                    const cells = Array.from(datePickerDates.children);
+                    const currentIndex = cells.indexOf(focusedElement);
+                    let newIndex = currentIndex;
+                    
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            newIndex = Math.max(0, currentIndex - 1);
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            newIndex = Math.min(cells.length - 1, currentIndex + 1);
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            newIndex = Math.max(0, currentIndex - 7);
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            newIndex = Math.min(cells.length - 1, currentIndex + 7);
+                            break;
+                    }
+                    
+                    if (newIndex !== currentIndex && cells[newIndex]) {
+                        cells[newIndex].focus();
+                    }
+                }
+            });
+        }
+
+        // 🔐 LOGIN FIELDS VISIBILITY CONTROL
+        function initLoginFieldsControl() {
+            const showLoginGmail = document.getElementById('showLoginGmail');
+            const showLoginStarlink = document.getElementById('showLoginStarlink');
+            const showLoginAlternatif = document.getElementById('showLoginAlternatif');
+
+            const loginGmailGroup = document.getElementById('loginGmailGroup');
+            const loginStarlinkGroup = document.getElementById('loginStarlinkGroup');
+            const loginAlternatifGroup = document.getElementById('loginAlternatifGroup');
+
+            function toggleLoginFields() {
+                // Gmail
+                if (showLoginGmail.checked) {
+                    loginGmailGroup.classList.remove('hidden');
+                } else {
+                    loginGmailGroup.classList.add('hidden');
+                    document.getElementById('loginGmail').value = '';
+                }
+
+                // Starlink
+                if (showLoginStarlink.checked) {
+                    loginStarlinkGroup.classList.remove('hidden');
+                } else {
+                    loginStarlinkGroup.classList.add('hidden');
+                    document.getElementById('loginStarlink').value = '';
+                }
+
+                // Alternatif
+                if (showLoginAlternatif.checked) {
+                    loginAlternatifGroup.classList.remove('hidden');
+                } else {
+                    loginAlternatifGroup.classList.add('hidden');
+                    document.getElementById('loginAlternatif').value = '';
+                }
+            }
+
+            showLoginGmail.addEventListener('change', toggleLoginFields);
+            showLoginStarlink.addEventListener('change', toggleLoginFields);
+            showLoginAlternatif.addEventListener('change', toggleLoginFields);
+
+            // Initial state
+            toggleLoginFields();
+        }
+
+        function showAlert(message, type = 'success') {
+            // Support HTML content for better error formatting
+            alertBox.innerHTML = message;
+            alertBox.className = `alert ${type}`;
+            alertBox.style.display = 'block';
+
+            const hideDelay = type === 'error' ? 15000 : 8000;
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, hideDelay);
+
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            console.log(`📢 Alert shown: ${type} - ${message}`);
+        }
+
+        function setSubmitState(submitting) {
+            isSubmitting = submitting;
+            submitBtn.disabled = submitting;
+            
+            if (submitting) {
+                submitBtn.textContent = '⏳ Menyimpan...';
+                loadingDiv.style.display = 'block';
+            } else {
+                submitBtn.textContent = '🚀 Submit Data Client';
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            // Date is already formatted as DD/MM/YYYY from custom picker
+            return dateString;
+        }
+
+        function createHandleResponse() {
+            return function(result) {
+                console.log('📨 Response received:', result);
+                setSubmitState(false);
+                
+                if (result.status === 'success') {
+                    showAlert(`✅ Data berhasil disimpan ke "${result.targetSheet}"! Row: ${result.rowNumber}`, 'success');
+                    form.reset();
+                    document.getElementById('clientAktif').checked = true;
+                    
+                    // Reset login field selections to default (Starlink)
+                    document.getElementById('showLoginGmail').checked = false;
+                    document.getElementById('showLoginStarlink').checked = true;
+                    document.getElementById('showLoginAlternatif').checked = false;
+                    initLoginFieldsControl();
+                    
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+                    submitAttempts = 0;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    console.error('❌ Submit error:', result);
+                    showAlert(`❌ Error: ${result.message || 'Terjadi kesalahan saat menyimpan data'}`, 'error');
+                    submitAttempts++;
+                    if (submitAttempts >= MAX_SUBMIT_ATTEMPTS) {
+                        showAlert(`⚠️ Gagal setelah ${MAX_SUBMIT_ATTEMPTS} percobaan. Silakan refresh halaman dan coba lagi.`, 'error');
+                    }
+                }
+            };
+        }
+
+        function submitToAppsScript(data) {
+            if (isSubmitting) {
+                console.log('🚫 Submit already in progress, ignoring...');
+                return;
+            }
+
+            console.log('🚀 Starting submit process...');
+            setSubmitState(true);
+
+            try {
+                const callbackName = 'handleResponse_' + Date.now();
+                window[callbackName] = createHandleResponse();
+
+                const script = document.createElement('script');
+                const requestData = encodeURIComponent(JSON.stringify(data));
+                script.src = `${SCRIPT_URL}?action=submitClientData&data=${requestData}&callback=${callbackName}`;
+                
+                const timeoutId = setTimeout(() => {
+                    console.error('⏰ Request timeout');
+                    if (document.head.contains(script)) {
+                        document.head.removeChild(script);
+                    }
+                    delete window[callbackName];
+                    setSubmitState(false);
+                    showAlert('⏰ Request timeout - server tidak merespons dalam 30 detik', 'error');
+                }, SUBMIT_TIMEOUT);
+
+                script.onload = () => {
+                    clearTimeout(timeoutId);
+                    setTimeout(() => {
+                        if (document.head.contains(script)) {
+                            document.head.removeChild(script);
+                        }
+                        delete window[callbackName];
+                    }, 1000);
+                };
+
+                script.onerror = () => {
+                    clearTimeout(timeoutId);
+                    if (document.head.contains(script)) {
+                        document.head.removeChild(script);
+                    }
+                    delete window[callbackName];
+                    setSubmitState(false);
+                    showAlert('❌ Network error - tidak dapat menghubungi server', 'error');
+                };
+
+                document.head.appendChild(script);
+
+            } catch (error) {
+                setSubmitState(false);
+                showAlert(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // 🛡️ COMPREHENSIVE FORM VALIDATION
+        function validateForm() {
+            const errors = [];
+            const requiredFields = [
+                { id: 'nama', label: 'Nama Client', element: document.getElementById('nama') },
+                { id: 'accNo', label: 'Account Number', element: document.getElementById('accNo') },
+                { id: 'emailClient', label: 'Email Client', element: document.getElementById('emailClient') },
+                { id: 'nomorCS', label: 'Nomor CS', element: document.getElementById('nomorCS') },
+                { id: 'alamat', label: 'Alamat Lengkap', element: document.getElementById('alamat') },
+                { id: 'customDateInput', label: 'Tanggal Jatuh Tempo', element: document.getElementById('customDateInput') },
+                { id: 'payment', label: 'Payment Method', element: document.getElementById('payment') }
+            ];
+
+            // Check login fields - at least one must be filled
+            const loginGmail = document.getElementById('loginGmail');
+            const loginStarlink = document.getElementById('loginStarlink');
+            const loginAlternatif = document.getElementById('loginAlternatif');
+
+            const hasLogin = (loginGmail && loginGmail.value.trim()) ||
+                           (loginStarlink && loginStarlink.value.trim()) ||
+                           (loginAlternatif && loginAlternatif.value.trim());
+
+            if (!hasLogin) {
+                errors.push('Minimal 1 Login (Gmail/Starlink/Alternatif) wajib diisi');
+                // Highlight all login fields
+                if (loginGmail && loginGmail.parentElement.parentElement.style.display !== 'none') {
+                    loginGmail.style.borderColor = 'var(--error-color)';
+                    loginGmail.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                }
+                if (loginStarlink && loginStarlink.parentElement.parentElement.style.display !== 'none') {
+                    loginStarlink.style.borderColor = 'var(--error-color)';
+                    loginStarlink.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                }
+                if (loginAlternatif && loginAlternatif.parentElement.parentElement.style.display !== 'none') {
+                    loginAlternatif.style.borderColor = 'var(--error-color)';
+                    loginAlternatif.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                }
+            }
+
+            // Check all other required fields
+            requiredFields.forEach(field => {
+                if (!field.element || !field.element.value.trim()) {
+                    errors.push(`${field.label} wajib diisi`);
+                    if (field.element) {
+                        field.element.style.borderColor = 'var(--error-color)';
+                        field.element.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                        // Scroll to first error
+                        if (errors.length === 1) {
+                            field.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            setTimeout(() => field.element.focus(), 500);
+                        }
+                    }
+                }
+            });
+
+            // Validate email format
+            const emailClient = document.getElementById('emailClient');
+            if (emailClient && emailClient.value.trim()) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailClient.value.trim())) {
+                    errors.push('Format Email Client tidak valid');
+                    emailClient.style.borderColor = 'var(--error-color)';
+                    emailClient.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                }
+            }
+
+            if (errors.length > 0) {
+                const errorMessage = `❌ Form tidak lengkap! Harap lengkapi:\n\n${errors.map((err, i) => `${i + 1}. ${err}`).join('\n')}`;
+                showAlert(errorMessage.replace(/\n/g, '<br>'), 'error');
+                return false;
+            }
+
+            return true;
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (isSubmitting) {
+                showAlert('⚠️ Sedang dalam proses submit, mohon tunggu...', 'error');
+                return;
+            }
+
+            alertBox.style.display = 'none';
+
+            // Validate form before submitting
+            if (!validateForm()) {
+                return;
+            }
+
+            try {
+                const formData = new FormData(form);
+                const data = {};
+
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value.trim();
+                }
+
+                // Format phone numbers
+                if (data.nomorCS) {
+                    data.nomorCS = formatPhoneNumber(data.nomorCS);
+                }
+                
+                if (data.noRegister) {
+                    data.noRegister = formatPhoneNumber(data.noRegister);
+                }
+
+                // Date is already in correct format from custom picker
+                if (data.tanggalJatuhTempo) {
+                    data.tanggalJatuhTempo = formatDate(data.tanggalJatuhTempo);
+                }
+
+                const targetSheet = data.targetSheet;
+                if (!targetSheet) {
+                    showAlert('❌ Pilih target sheet terlebih dahulu', 'error');
+                    return;
+                }
+
+                submitToAppsScript(data);
+
+            } catch (error) {
+                showAlert(`❌ Form error: ${error.message}`, 'error');
+            }
+        });
+
+        // Enhanced phone number input handlers
+        function setupPhoneInputHandler(elementId, fieldName) {
+            const element = document.getElementById(elementId);
+            
+            element.addEventListener('input', function(e) {
+                let value = e.target.value;
+                
+                // Allow only numbers, +, -, and space during typing
+                value = value.replace(/[^0-9+\-\s]/g, '');
+                e.target.value = value;
+                
+                // Show preview of formatted number
+                if (value.length > 3) {
+                    const formatted = formatPhoneNumber(value);
+                    const hint = e.target.parentElement.querySelector('.field-hint');
+                    if (hint) {
+                        hint.textContent = `Preview: ${formatted}`;
+                        hint.style.color = 'var(--success-color)';
+                    }
+                }
+            });
+
+            // Auto-format on blur
+            element.addEventListener('blur', function(e) {
+                if (e.target.value) {
+                    const formatted = formatPhoneNumber(e.target.value);
+                    e.target.value = formatted;
+                    
+                    const hint = e.target.parentElement.querySelector('.field-hint');
+                    if (hint) {
+                        hint.textContent = 'Format: 6285359131711 (akan diformat otomatis)';
+                        hint.style.color = 'var(--text-muted)';
+                    }
+                }
+            });
+        }
+
+
+// 📝 REMOVED AUTO-CAPITALIZE/LOWERCASE - Keep input as typed by user
+// Per request: "jangan ubah menjadi capitalize otomatis, jadikan apa adanya saja"
+
+
+        // Setup phone handlers for both fields
+        setupPhoneInputHandler('nomorCS', 'Nomor CS');
+        setupPhoneInputHandler('noRegister', 'No Register');
+
+        // Initialize custom components
+        window.addEventListener('load', function() {
+            initCustomDatePicker();
+            initLoginFieldsControl();
+            // REMOVED: initAutoFormatting() - keep input as user types
+
+            setTimeout(() => {
+                const namaField = document.getElementById('nama');
+                if (namaField) namaField.focus();
+            }, 800);
+        });
+
+        // Form validation enhancements
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.hasAttribute('required') && !this.value.trim()) {
+                    this.style.borderColor = 'var(--error-color)';
+                    this.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                } else {
+                    this.style.borderColor = 'var(--border-color)';
+                    this.style.boxShadow = 'none';
+                }
+            });
+
+            input.addEventListener('input', function() {
+                if (this.style.borderColor === 'var(--error-color)') {
+                    this.style.borderColor = 'var(--border-color)';
+                    this.style.boxShadow = 'none';
+                }
+            });
+        });
+
+        // Radio and checkbox interactions
+        const radioItems = document.querySelectorAll('.radio-item');
+        radioItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    radioItems.forEach(otherItem => {
+                        otherItem.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                }
+            });
+        });
+
+        const checkboxItems = document.querySelectorAll('.checkbox-item');
+        checkboxItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (e.target.type !== 'checkbox') {
+                    const checkbox = this.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                }
+            });
+        });
+
+        window.addEventListener('error', function(event) {
+            if (event.message.includes('handleResponse') && isSubmitting) {
+                setSubmitState(false);
+                showAlert('❌ Terjadi kesalahan koneksi. Silakan coba lagi.', 'error');
+            }
+        });
+
+        console.log('✅ Enhanced Client Form initialized - IMPROVED UX VERSION');
+        console.log('🎯 NO AUTO-CAPITALIZE: Input tetap sesuai yang diketik user');
+        console.log('⚠️ REQUIRED INDICATORS: Field wajib diberi tanda * merah');
+        console.log('🛡️ SMART VALIDATION: Validasi lengkap sebelum submit');
+        console.log('📋 CLEAR HINTS: Setiap field ada petunjuk wajib/opsional');
+        console.log('📞 AUTO PHONE FORMAT: +62/0/85x → 6285x format');
+        console.log('📅 MODAL DATE PICKER: GMT+7 timezone dengan UI modern');
+        console.log('🔐 DYNAMIC LOGIN FIELDS: Pilih field login yang dibutuhkan');
+        console.log('🌈 GLOW EFFECTS: Setiap input punya warna glow unik');
+        console.log('💡 EMPLOYEE FRIENDLY: Mencegah lupa input data penting!');
+    </script>
+</body>
+</html>
