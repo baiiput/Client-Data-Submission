@@ -1,0 +1,297 @@
+/**
+ * ========================================
+ * GOOGLE APPS SCRIPT - CLIENT DATA SUBMISSION
+ * ========================================
+ *
+ * CARA PAKAI:
+ * 1. Copy SEMUA kode di file ini
+ * 2. Buka Google Sheets Anda
+ * 3. Klik Extensions → Apps Script
+ * 4. Hapus semua kode yang ada, paste kode ini
+ * 5. PENTING: Edit bagian KONFIGURASI di bawah (baris 25-40)
+ * 6. Save (Ctrl+S)
+ * 7. Deploy:
+ *    - Klik "Deploy" → "New deployment"
+ *    - Type: Web app
+ *    - Execute as: Me
+ *    - Who has access: Anyone
+ *    - Klik "Deploy"
+ * 8. Copy "Web app URL" dan masukkan ke config.js
+ */
+
+// ========================================
+// KONFIGURASI - EDIT BAGIAN INI!
+// ========================================
+
+// Nama sheet yang akan digunakan (harus sudah ada di spreadsheet)
+const SHEET_NAMES = {
+  AKTIF: 'Client Aktif',
+  NON_AKTIF: 'Client Non Aktif',
+  LEPAS: 'Client Lepas'
+};
+
+// Urutan kolom di sheet Anda (A, B, C, dst)
+// SESUAIKAN dengan urutan kolom di Google Sheet Anda!
+const COLUMN_ORDER = [
+  'timestamp',          // A: Timestamp
+  'targetSheet',        // B: Target Sheet
+  'nama',              // C: Nama Client
+  'accNo',             // D: Account Number
+  'emailClient',       // E: Email Client
+  'nomorCS',           // F: Nomor CS
+  'loginGmail',        // G: Login Gmail
+  'loginStarlink',     // H: Login Starlink
+  'loginAlternatif',   // I: Login Alternatif
+  'kitNumber',         // J: KIT Number
+  'serialNumber',      // K: Serial Number
+  'alamat',            // L: Alamat
+  'tanggalJatuhTempo', // M: Tanggal Jatuh Tempo
+  'payment',           // N: Payment Method
+  'status',            // O: Status
+  'paket',             // P: Paket
+  'last4Digit',        // Q: Last 4 Digit
+  'idTransaksi',       // R: ID Transaksi
+  'kode',              // S: Kode
+  'noRegister'         // T: No Register
+];
+
+// ========================================
+// KODE UTAMA - JANGAN EDIT DIBAWAH INI
+// ========================================
+
+/**
+ * Handle POST request dari add-v2.html
+ */
+function doPost(e) {
+  try {
+    Logger.log('📥 POST request received');
+
+    // Parse POST data
+    let data;
+    let action;
+
+    if (e.postData && e.postData.contents) {
+      // Parse FormData
+      const params = parseFormData(e.postData.contents);
+      action = params.action;
+      data = JSON.parse(params.data);
+    } else if (e.parameter && e.parameter.data) {
+      // Fallback: data di parameter
+      action = e.parameter.action;
+      data = JSON.parse(e.parameter.data);
+    } else {
+      throw new Error('No data received in POST request');
+    }
+
+    Logger.log('🎯 Action: ' + action);
+    Logger.log('📊 Data fields: ' + Object.keys(data).join(', '));
+
+    // Route to handler
+    if (action === 'submitClientData') {
+      return handleClientDataSubmission(data);
+    } else {
+      throw new Error('Unknown action: ' + action);
+    }
+
+  } catch (error) {
+    Logger.log('❌ Error in doPost: ' + error.toString());
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: error.toString(),
+      stack: error.stack
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Parse FormData dari POST request
+ */
+function parseFormData(contents) {
+  const params = {};
+  const pairs = contents.split('&');
+
+  for (let i = 0; i < pairs.length; i++) {
+    const pair = pairs[i].split('=');
+    if (pair.length >= 2) {
+      const key = decodeURIComponent(pair[0]);
+      const value = decodeURIComponent(pair[1]);
+      params[key] = value;
+    }
+  }
+
+  return params;
+}
+
+/**
+ * Handle client data submission
+ */
+function handleClientDataSubmission(data) {
+  try {
+    Logger.log('📝 Processing client data submission...');
+
+    // Validation - cek field wajib
+    const requiredFields = ['nama', 'accNo', 'emailClient', 'nomorCS',
+                          'kitNumber', 'serialNumber', 'alamat',
+                          'tanggalJatuhTempo', 'payment', 'status',
+                          'paket', 'last4Digit'];
+
+    const missingFields = [];
+    requiredFields.forEach(function(field) {
+      if (!data[field] || data[field].trim() === '') {
+        missingFields.push(field);
+      }
+    });
+
+    // Cek minimal 1 login
+    if (!data.loginGmail && !data.loginStarlink && !data.loginAlternatif) {
+      missingFields.push('minimal 1 login (Gmail/Starlink/Alternatif)');
+    }
+
+    if (missingFields.length > 0) {
+      throw new Error('Field wajib belum lengkap: ' + missingFields.join(', '));
+    }
+
+    // Get spreadsheet dan target sheet
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const targetSheetName = data.targetSheet || SHEET_NAMES.AKTIF;
+    const targetSheet = ss.getSheetByName(targetSheetName);
+
+    if (!targetSheet) {
+      throw new Error('Sheet tidak ditemukan: ' + targetSheetName);
+    }
+
+    // Get timestamp
+    const timestamp = getTimestamp();
+
+    // Buat array data sesuai COLUMN_ORDER
+    const rowData = [];
+    COLUMN_ORDER.forEach(function(field) {
+      if (field === 'timestamp') {
+        rowData.push(timestamp);
+      } else {
+        rowData.push(data[field] || '');
+      }
+    });
+
+    // Append ke sheet
+    targetSheet.appendRow(rowData);
+    const lastRow = targetSheet.getLastRow();
+
+    Logger.log('✅ Data saved to sheet: ' + targetSheetName + ', row: ' + lastRow);
+
+    // Return success response
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      message: 'Data berhasil disimpan',
+      targetSheet: targetSheetName,
+      rowNumber: lastRow,
+      timestamp: timestamp
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    Logger.log('❌ Error saving data: ' + error.toString());
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: error.toString(),
+      stack: error.stack
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Get formatted timestamp (Asia/Jakarta timezone)
+ */
+function getTimestamp() {
+  const now = new Date();
+
+  // Format: DD/MM/YYYY HH:MM:SS
+  const day = padZero(now.getDate());
+  const month = padZero(now.getMonth() + 1);
+  const year = now.getFullYear();
+  const hours = padZero(now.getHours());
+  const minutes = padZero(now.getMinutes());
+  const seconds = padZero(now.getSeconds());
+
+  return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+}
+
+/**
+ * Helper: Add leading zero
+ */
+function padZero(num) {
+  return num < 10 ? '0' + num : num.toString();
+}
+
+/**
+ * Optional: Handle GET request untuk backward compatibility
+ * (Tidak digunakan lagi oleh add-v2.html, tapi bisa tetap ada)
+ */
+function doGet(e) {
+  try {
+    const action = e.parameter.action;
+    const callback = e.parameter.callback;
+
+    if (action === 'submitClientData') {
+      const data = JSON.parse(decodeURIComponent(e.parameter.data));
+      const result = handleClientDataSubmission(data);
+
+      // Return JSONP response
+      if (callback) {
+        return ContentService.createTextOutput(
+          callback + '(' + result.getContent() + ')'
+        ).setMimeType(ContentService.MimeType.JAVASCRIPT);
+      } else {
+        return result;
+      }
+    }
+
+    throw new Error('Unknown action: ' + action);
+
+  } catch (error) {
+    Logger.log('❌ Error in doGet: ' + error.toString());
+    const result = JSON.stringify({
+      status: 'error',
+      message: error.toString()
+    });
+
+    if (e.parameter.callback) {
+      return ContentService.createTextOutput(
+        e.parameter.callback + '(' + result + ')'
+      ).setMimeType(ContentService.MimeType.JAVASCRIPT);
+    } else {
+      return ContentService.createTextOutput(result)
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+}
+
+/**
+ * Optional: Test function untuk debugging
+ * Cara pakai: Pilih function "testSubmit" dan klik Run
+ */
+function testSubmit() {
+  const testData = {
+    targetSheet: 'Client Aktif',
+    nama: 'Test Client',
+    accNo: 'ACC-TEST-001',
+    emailClient: 'test@example.com',
+    nomorCS: '628123456789',
+    loginGmail: 'test@gmail.com\npassword123',
+    loginStarlink: 'test@starlink.com\npass456',
+    loginAlternatif: '',
+    kitNumber: 'KIT123456',
+    serialNumber: 'SN987654',
+    alamat: 'Jalan Test No. 123\nJakarta',
+    tanggalJatuhTempo: '2024-12-31',
+    payment: 'TK-0900',
+    status: 'Active',
+    paket: 'Regular',
+    last4Digit: '0900',
+    idTransaksi: 'TXN-TEST-001',
+    kode: 'TEST',
+    noRegister: '628987654321'
+  };
+
+  const result = handleClientDataSubmission(testData);
+  Logger.log('Test result: ' + result.getContent());
+}
