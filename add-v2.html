@@ -1310,8 +1310,8 @@
             alertBox.style.display = 'none';
         }
 
-        // 📤 Submit Form
-        function submitToAppsScript(data) {
+        // 📤 Submit Form (Using POST with fetch - No URL length limit!)
+        async function submitToAppsScript(data) {
             if (isSubmitting) {
                 return;
             }
@@ -1334,88 +1334,91 @@
                     return;
                 }
 
-                console.log('🚀 Starting JSONP request to:', SCRIPT_URL);
+                console.log('🚀 Starting POST request to:', SCRIPT_URL);
+                console.log('📦 Data yang akan dikirim:', JSON.stringify(data, null, 2));
+                console.log('📊 Data size:', JSON.stringify(data).length, 'bytes');
 
-                const callbackName = 'handleResponse_' + Date.now();
-                window[callbackName] = function(result) {
-                    console.log('✅ Response received:', result);
-                    isSubmitting = false;
-                    submitBtn.disabled = false;
-                    loadingDiv.style.display = 'none';
+                // Create FormData for POST request
+                const formData = new FormData();
+                formData.append('action', 'submitClientData');
+                formData.append('data', JSON.stringify(data));
 
-                    if (result.status === 'success') {
-                        showAlert(`✅ Data berhasil disimpan ke "${result.targetSheet}"! Row: ${result.rowNumber}`, 'success');
+                console.log('📤 Sending POST request...');
 
-                        // Clear form and localStorage
-                        document.getElementById('clientForm').reset();
-                        localStorage.removeItem('clientFormData');
-
-                        // Reset to step 1
-                        currentStep = 1;
-                        updateStepper();
-
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } else {
-                        console.error('❌ Server error:', result);
-                        showAlert(`❌ Error: ${result.message || 'Terjadi kesalahan saat menyimpan data'}`, 'error');
-                    }
-                };
-
-                const script = document.createElement('script');
-                const requestData = encodeURIComponent(JSON.stringify(data));
-                const fullUrl = `${SCRIPT_URL}?action=submitClientData&data=${requestData}&callback=${callbackName}`;
-
-                console.log('📝 Request URL length:', fullUrl.length);
-                console.log('📝 Data size:', JSON.stringify(data).length, 'bytes');
-
-                script.src = fullUrl;
-
+                const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
+                    controller.abort();
                     console.error('⏰ Request timeout after 30 seconds');
-                    if (document.head.contains(script)) {
-                        document.head.removeChild(script);
-                    }
-                    delete window[callbackName];
-                    isSubmitting = false;
-                    submitBtn.disabled = false;
-                    loadingDiv.style.display = 'none';
-                    showAlert('⏰ Request timeout - server tidak merespons dalam 30 detik', 'error');
                 }, 30000);
 
-                script.onload = () => {
-                    console.log('✅ Script loaded successfully');
-                    clearTimeout(timeoutId);
-                    setTimeout(() => {
-                        if (document.head.contains(script)) {
-                            document.head.removeChild(script);
-                        }
-                        delete window[callbackName];
-                    }, 1000);
-                };
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal,
+                    redirect: 'follow'
+                });
 
-                script.onerror = (e) => {
-                    console.error('❌ Script load error:', e);
-                    console.error('❌ Failed URL:', SCRIPT_URL);
-                    clearTimeout(timeoutId);
-                    if (document.head.contains(script)) {
-                        document.head.removeChild(script);
+                clearTimeout(timeoutId);
+
+                console.log('✅ Response received:', response.status, response.statusText);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const contentType = response.headers.get('content-type');
+                console.log('📄 Content-Type:', contentType);
+
+                let result;
+                if (contentType && contentType.includes('application/json')) {
+                    result = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.log('📝 Raw response:', text);
+                    try {
+                        result = JSON.parse(text);
+                    } catch (e) {
+                        console.error('❌ Failed to parse response as JSON:', e);
+                        throw new Error('Response bukan format JSON yang valid');
                     }
-                    delete window[callbackName];
-                    isSubmitting = false;
-                    submitBtn.disabled = false;
-                    loadingDiv.style.display = 'none';
-                    showAlert('❌ Network error - Tidak dapat menghubungi server. Periksa:<br>1. Koneksi internet<br>2. URL API di config.js<br>3. Console browser untuk detail error', 'error');
-                };
+                }
 
-                console.log('📤 Appending script to head...');
-                document.head.appendChild(script);
+                console.log('✅ Parsed result:', result);
+
+                isSubmitting = false;
+                submitBtn.disabled = false;
+                loadingDiv.style.display = 'none';
+
+                if (result.status === 'success') {
+                    showAlert(`✅ Data berhasil disimpan ke "${result.targetSheet}"! Row: ${result.rowNumber}`, 'success');
+
+                    // Clear form and localStorage
+                    document.getElementById('clientForm').reset();
+                    localStorage.removeItem('clientFormData');
+
+                    // Reset to step 1
+                    currentStep = 1;
+                    updateStepper();
+
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    console.error('❌ Server error:', result);
+                    showAlert(`❌ Error: ${result.message || 'Terjadi kesalahan saat menyimpan data'}`, 'error');
+                }
 
             } catch (error) {
                 console.error('❌ Exception in submitToAppsScript:', error);
                 isSubmitting = false;
                 submitBtn.disabled = false;
                 loadingDiv.style.display = 'none';
-                showAlert(`❌ Error: ${error.message}`, 'error');
+
+                if (error.name === 'AbortError') {
+                    showAlert('⏰ Request timeout - server tidak merespons dalam 30 detik', 'error');
+                } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    showAlert('❌ Network error - Tidak dapat menghubungi server. Periksa:<br>1. Koneksi internet<br>2. URL API di config.js<br>3. Console browser untuk detail error', 'error');
+                } else {
+                    showAlert(`❌ Error: ${error.message}`, 'error');
+                }
             }
         }
 
@@ -1448,6 +1451,7 @@
             e.preventDefault();
 
             if (isSubmitting) {
+                console.warn('⚠️ Already submitting, please wait...');
                 return;
             }
 
@@ -1471,6 +1475,37 @@
             if (data.noRegister) {
                 data.noRegister = formatPhoneNumber(data.noRegister);
             }
+
+            // 🛡️ FINAL VALIDATION BEFORE SUBMIT
+            console.log('🔍 Running final validation...');
+            const finalErrors = [];
+
+            // Check required fields
+            if (!data.nama) finalErrors.push('Nama Client');
+            if (!data.accNo) finalErrors.push('Account Number');
+            if (!data.emailClient) finalErrors.push('Email Client');
+            if (!data.nomorCS) finalErrors.push('Nomor CS');
+            if (!data.kitNumber) finalErrors.push('KIT Number');
+            if (!data.serialNumber) finalErrors.push('Serial Number');
+            if (!data.alamat) finalErrors.push('Alamat');
+            if (!data.tanggalJatuhTempo) finalErrors.push('Tanggal Jatuh Tempo');
+            if (!data.payment) finalErrors.push('Payment Method');
+            if (!data.status) finalErrors.push('Status');
+            if (!data.paket) finalErrors.push('Paket');
+            if (!data.last4Digit) finalErrors.push('Last 4 Digit');
+
+            // Check at least one login
+            if (!data.loginGmail && !data.loginStarlink && !data.loginAlternatif) {
+                finalErrors.push('Minimal 1 Login (Gmail/Starlink/Alternatif)');
+            }
+
+            if (finalErrors.length > 0) {
+                console.error('❌ Final validation failed:', finalErrors);
+                showAlert(`❌ VALIDASI GAGAL! Field wajib belum lengkap:<br><br>${finalErrors.map((e, i) => `${i+1}. ${e}`).join('<br>')}`, 'error');
+                return;
+            }
+
+            console.log('✅ Final validation passed!');
 
             // Debug: log data being submitted
             console.log('📤 Submitting data:', data);
