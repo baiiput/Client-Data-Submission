@@ -153,6 +153,87 @@
             gap: 6px;
         }
 
+        /* ⚠️ REQUIRED FIELD INDICATOR */
+        .required-indicator {
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-left: 3px;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* ⚠️ REQUIRED FIELD BORDER */
+        .form-group input.required-field,
+        .form-group textarea.required-field,
+        .form-group select.required-field {
+            border-left: 3px solid rgba(239, 68, 68, 0.5);
+        }
+
+        .form-group input.required-field:focus,
+        .form-group textarea.required-field:focus,
+        .form-group select.required-field:focus {
+            border-left: 3px solid #ef4444;
+        }
+
+        /* ⚠️ IMPORTANT NOTICE BOX */
+        .important-notice {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+            border: 1.5px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .important-notice-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .important-notice-text {
+            font-size: 0.85rem;
+            color: #fca5a5;
+            line-height: 1.4;
+        }
+
+        .important-notice-text strong {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
         .form-group input,
         .form-group textarea,
         .form-group select {
@@ -1089,6 +1170,8 @@
             backdrop-filter: blur(10px);
             font-size: 0.9rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            line-height: 1.6;
+            text-align: left;
         }
 
         .alert.success {
@@ -1103,6 +1186,11 @@
             border-color: var(--error-color);
             color: #fca5a5;
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .alert br {
+            display: block;
+            margin: 4px 0;
         }
 
         /* 📱 COMPACT FORM LAYOUT */
@@ -1318,6 +1406,14 @@
         <div class="form-container">
             <div class="alert" id="alertBox"></div>
 
+            <!-- ⚠️ IMPORTANT NOTICE -->
+            <div class="important-notice">
+                <div class="important-notice-icon">⚠️</div>
+                <div class="important-notice-text">
+                    <strong>PERHATIAN:</strong> Field dengan tanda <span style="color: #ef4444; font-weight: 700;">*</span> adalah <strong>WAJIB DIISI</strong>. Pastikan semua data terisi dengan benar sebelum submit!
+                </div>
+            </div>
+
             <form id="clientForm">
                 <!-- 🎯 COMPACT SHEET SELECTION -->
                 <div class="sheet-selection">
@@ -1359,50 +1455,54 @@
 
                 <!-- 👤 BASIC INFO -->
                 <div class="form-group">
-                    <label for="nama">👤 Nama Client</label>
-                    <input type="text" id="nama" name="nama" placeholder="Nama lengkap client">
+                    <label for="nama">👤 Nama Client <span class="required-indicator">*</span></label>
+                    <input type="text" id="nama" name="nama" placeholder="Nama lengkap client" class="required-field" required>
+                    <div class="field-hint" style="color: #fca5a5;">⚠️ Wajib diisi - Nama lengkap client</div>
                 </div>
 
                 <!-- 🔐 DYNAMIC LOGIN FIELDS -->
                 <div class="form-group hidden" id="loginGmailGroup">
-                    <label for="loginGmail">📧 Login Gmail</label>
-                    <textarea id="loginGmail" name="loginGmail" placeholder="email@gmail.com&#10;password123&#10;backup@email.com"></textarea>
-                    <div class="field-hint">Gunakan Enter untuk multiple login</div>
+                    <label for="loginGmail">📧 Login Gmail <span class="required-indicator">*</span></label>
+                    <textarea id="loginGmail" name="loginGmail" placeholder="email@gmail.com&#10;password123&#10;backup@email.com" class="required-field"></textarea>
+                    <div class="field-hint">⚠️ Minimal 1 login wajib diisi | Gunakan Enter untuk multiple login</div>
                 </div>
 
                 <div class="form-group" id="loginStarlinkGroup">
-                    <label for="loginStarlink">🛰️ Login Starlink</label>
-                    <textarea id="loginStarlink" name="loginStarlink" placeholder="starlink@email.com&#10;password456&#10;starlink.backup@email.com"></textarea>
-                    <div class="field-hint">Gunakan Enter untuk multiple login</div>
+                    <label for="loginStarlink">🛰️ Login Starlink <span class="required-indicator">*</span></label>
+                    <textarea id="loginStarlink" name="loginStarlink" placeholder="starlink@email.com&#10;password456&#10;starlink.backup@email.com" class="required-field"></textarea>
+                    <div class="field-hint">⚠️ Minimal 1 login wajib diisi | Gunakan Enter untuk multiple login</div>
                 </div>
 
                 <div class="form-group hidden" id="loginAlternatifGroup">
                     <label for="loginAlternatif">🔄 Login Alternatif</label>
                     <textarea id="loginAlternatif" name="loginAlternatif" placeholder="alternative@email.com&#10;altpassword789"></textarea>
-                    <div class="field-hint">Login cadangan (opsional)</div>
+                    <div class="field-hint">Login cadangan (opsional - tidak wajib)</div>
                 </div>
 
                 <!-- 📞 CONTACT & ACCOUNT INFO - FIXED SINGLE ACCOUNT NUMBER -->
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="accNo">🔢 Account Number</label>
-                        <input type="text" id="accNo" name="accNo" placeholder="ACC-123-456-789">
+                        <label for="accNo">🔢 Account Number <span class="required-indicator">*</span></label>
+                        <input type="text" id="accNo" name="accNo" placeholder="ACC-123-456-789" class="required-field" required>
+                        <div class="field-hint" style="color: #fca5a5;">⚠️ Wajib diisi</div>
                     </div>
                     <div class="form-group">
-                        <label for="emailClient">✉️ Email Client</label>
-                        <input type="email" id="emailClient" name="emailClient" placeholder="client@email.com">
+                        <label for="emailClient">✉️ Email Client <span class="required-indicator">*</span></label>
+                        <input type="email" id="emailClient" name="emailClient" placeholder="client@email.com" class="required-field" required>
+                        <div class="field-hint" style="color: #fca5a5;">⚠️ Wajib diisi</div>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="nomorCS">📞 Nomor CS</label>
-                        <input type="tel" id="nomorCS" name="nomorCS" placeholder="628123456789">
-                        <div class="field-hint">Format: 6285359131711 (akan diformat otomatis)</div>
+                        <label for="nomorCS">📞 Nomor CS <span class="required-indicator">*</span></label>
+                        <input type="tel" id="nomorCS" name="nomorCS" placeholder="628123456789" class="required-field" required>
+                        <div class="field-hint">⚠️ Wajib diisi | Format: 08xx atau 62xx (auto-format)</div>
                     </div>
                     <div class="form-group">
                         <label for="kitNumber">📦 KIT Number</label>
                         <input type="text" id="kitNumber" name="kitNumber" placeholder="KIT123456789">
+                        <div class="field-hint">Opsional</div>
                     </div>
                 </div>
 
@@ -1416,30 +1516,31 @@
 
                 <!-- 🏠 ADDRESS -->
                 <div class="form-group">
-                    <label for="alamat">🏠 Alamat Lengkap</label>
-                    <textarea id="alamat" name="alamat" placeholder="Jalan Contoh No. 123&#10;Kelurahan, Kecamatan&#10;Kota, Provinsi 12345"></textarea>
-                    <div class="field-hint">Gunakan Enter untuk baris baru</div>
+                    <label for="alamat">🏠 Alamat Lengkap <span class="required-indicator">*</span></label>
+                    <textarea id="alamat" name="alamat" placeholder="Jalan Contoh No. 123&#10;Kelurahan, Kecamatan&#10;Kota, Provinsi 12345" class="required-field" required></textarea>
+                    <div class="field-hint">⚠️ Wajib diisi | Gunakan Enter untuk baris baru</div>
                 </div>
 
                 <!-- 📅 PAYMENT & STATUS -->
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="customDateInput">📅 Jatuh Tempo</label>
+                        <label for="customDateInput">📅 Jatuh Tempo <span class="required-indicator">*</span></label>
                         <div class="custom-date-picker">
-                            <input type="text" id="customDateInput" name="tanggalJatuhTempo" placeholder="DD/MM/YYYY" readonly>
-                            <div class="date-hint">Klik untuk memilih tanggal (GMT+7)</div>
+                            <input type="text" id="customDateInput" name="tanggalJatuhTempo" placeholder="DD/MM/YYYY" readonly class="required-field" required>
+                            <div class="field-hint">⚠️ Wajib diisi | Klik untuk memilih tanggal (GMT+7)</div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="kode">🔑 Kode</label>
                         <input type="text" id="kode" name="kode" placeholder="Kode referensi">
+                        <div class="field-hint">Opsional</div>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="payment">💳 Payment Method</label>
-                        <select id="payment" name="payment">
+                        <label for="payment">💳 Payment Method <span class="required-indicator">*</span></label>
+                        <select id="payment" name="payment" class="required-field" required>
                             <option value="">Pilih payment...</option>
                             <option value="TK-0900">TK-0900</option>
                             <option value="BL-7519">BL-7519</option>
@@ -1450,10 +1551,12 @@
                             <option value="L-3402">L-3402</option>
                             <option value="Unknown">Unknown</option>
                         </select>
+                        <div class="field-hint" style="color: #fca5a5;">⚠️ Wajib dipilih</div>
                     </div>
                     <div class="form-group">
                         <label for="idTransaksi">🆔 ID Transaksi</label>
                         <input type="text" id="idTransaksi" name="idTransaksi" placeholder="TXN-123456">
+                        <div class="field-hint">Opsional</div>
                     </div>
                 </div>
 
@@ -1922,11 +2025,12 @@
         }
 
         function showAlert(message, type = 'success') {
-            alertBox.textContent = message;
+            // Support HTML content for better error formatting
+            alertBox.innerHTML = message;
             alertBox.className = `alert ${type}`;
             alertBox.style.display = 'block';
-            
-            const hideDelay = type === 'error' ? 10000 : 8000;
+
+            const hideDelay = type === 'error' ? 15000 : 8000;
             setTimeout(() => {
                 alertBox.style.display = 'none';
             }, hideDelay);
@@ -2041,15 +2145,95 @@
             }
         }
 
+        // 🛡️ COMPREHENSIVE FORM VALIDATION
+        function validateForm() {
+            const errors = [];
+            const requiredFields = [
+                { id: 'nama', label: 'Nama Client', element: document.getElementById('nama') },
+                { id: 'accNo', label: 'Account Number', element: document.getElementById('accNo') },
+                { id: 'emailClient', label: 'Email Client', element: document.getElementById('emailClient') },
+                { id: 'nomorCS', label: 'Nomor CS', element: document.getElementById('nomorCS') },
+                { id: 'alamat', label: 'Alamat Lengkap', element: document.getElementById('alamat') },
+                { id: 'customDateInput', label: 'Tanggal Jatuh Tempo', element: document.getElementById('customDateInput') },
+                { id: 'payment', label: 'Payment Method', element: document.getElementById('payment') }
+            ];
+
+            // Check login fields - at least one must be filled
+            const loginGmail = document.getElementById('loginGmail');
+            const loginStarlink = document.getElementById('loginStarlink');
+            const loginAlternatif = document.getElementById('loginAlternatif');
+
+            const hasLogin = (loginGmail && loginGmail.value.trim()) ||
+                           (loginStarlink && loginStarlink.value.trim()) ||
+                           (loginAlternatif && loginAlternatif.value.trim());
+
+            if (!hasLogin) {
+                errors.push('Minimal 1 Login (Gmail/Starlink/Alternatif) wajib diisi');
+                // Highlight all login fields
+                if (loginGmail && loginGmail.parentElement.parentElement.style.display !== 'none') {
+                    loginGmail.style.borderColor = 'var(--error-color)';
+                    loginGmail.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                }
+                if (loginStarlink && loginStarlink.parentElement.parentElement.style.display !== 'none') {
+                    loginStarlink.style.borderColor = 'var(--error-color)';
+                    loginStarlink.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                }
+                if (loginAlternatif && loginAlternatif.parentElement.parentElement.style.display !== 'none') {
+                    loginAlternatif.style.borderColor = 'var(--error-color)';
+                    loginAlternatif.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                }
+            }
+
+            // Check all other required fields
+            requiredFields.forEach(field => {
+                if (!field.element || !field.element.value.trim()) {
+                    errors.push(`${field.label} wajib diisi`);
+                    if (field.element) {
+                        field.element.style.borderColor = 'var(--error-color)';
+                        field.element.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                        // Scroll to first error
+                        if (errors.length === 1) {
+                            field.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            setTimeout(() => field.element.focus(), 500);
+                        }
+                    }
+                }
+            });
+
+            // Validate email format
+            const emailClient = document.getElementById('emailClient');
+            if (emailClient && emailClient.value.trim()) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailClient.value.trim())) {
+                    errors.push('Format Email Client tidak valid');
+                    emailClient.style.borderColor = 'var(--error-color)';
+                    emailClient.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+                }
+            }
+
+            if (errors.length > 0) {
+                const errorMessage = `❌ Form tidak lengkap! Harap lengkapi:\n\n${errors.map((err, i) => `${i + 1}. ${err}`).join('\n')}`;
+                showAlert(errorMessage.replace(/\n/g, '<br>'), 'error');
+                return false;
+            }
+
+            return true;
+        }
+
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             if (isSubmitting) {
                 showAlert('⚠️ Sedang dalam proses submit, mohon tunggu...', 'error');
                 return;
             }
 
             alertBox.style.display = 'none';
+
+            // Validate form before submitting
+            if (!validateForm()) {
+                return;
+            }
 
             try {
                 const formData = new FormData(form);
@@ -2124,79 +2308,8 @@
         }
 
 
-// 📝 AUTO TEXT FORMATTING FUNCTIONS
-function capitalizeText(text) {
-    return text.replace(/\b\w+/g, function(word) {
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    });
-}
-
-function setupAutoCapitalize(elementId) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    element.addEventListener('input', function(e) {
-        const cursorPos = e.target.selectionStart;
-        const originalLength = e.target.value.length;
-        
-        // Apply capitalization
-        e.target.value = capitalizeText(e.target.value);
-        
-        // Restore cursor position (accounting for potential length changes)
-        const newLength = e.target.value.length;
-        const newCursorPos = cursorPos + (newLength - originalLength);
-        e.target.setSelectionRange(newCursorPos, newCursorPos);
-    });
-    
-    // Also format on paste
-    element.addEventListener('paste', function(e) {
-        setTimeout(() => {
-            const cursorPos = e.target.selectionStart;
-            e.target.value = capitalizeText(e.target.value);
-            e.target.setSelectionRange(cursorPos, cursorPos);
-        }, 10);
-    });
-}
-
-function setupAutoLowercase(elementId) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    element.addEventListener('input', function(e) {
-        const cursorPos = e.target.selectionStart;
-        
-        // Apply lowercase
-        e.target.value = e.target.value.toLowerCase();
-        
-        // Restore cursor position
-        e.target.setSelectionRange(cursorPos, cursorPos);
-    });
-    
-    // Also format on paste
-    element.addEventListener('paste', function(e) {
-        setTimeout(() => {
-            const cursorPos = e.target.selectionStart;
-            e.target.value = e.target.value.toLowerCase();
-            e.target.setSelectionRange(cursorPos, cursorPos);
-        }, 10);
-    });
-}
-
-// 🚀 INITIALIZE AUTO-FORMATTING
-function initAutoFormatting() {
-    // Auto capitalize fields
-    setupAutoCapitalize('nama');
-    setupAutoCapitalize('alamat');
-    
-//    // Auto lowercase fields  
-//    setupAutoLowercase('loginGmail');
-//    setupAutoLowercase('loginStarlink');
-//    setupAutoLowercase('loginAlternatif');
-    
-    console.log('✅ Auto-formatting initialized:');
-    console.log('   📝 Auto capitalize: Nama Client, Alamat Lengkap');
-    console.log('   🔡 Auto lowercase: Login Gmail, Login Starlink, Login Alternatif');
-}
+// 📝 REMOVED AUTO-CAPITALIZE/LOWERCASE - Keep input as typed by user
+// Per request: "jangan ubah menjadi capitalize otomatis, jadikan apa adanya saja"
 
 
         // Setup phone handlers for both fields
@@ -2207,8 +2320,8 @@ function initAutoFormatting() {
         window.addEventListener('load', function() {
             initCustomDatePicker();
             initLoginFieldsControl();
-            initAutoFormatting();
-            
+            // REMOVED: initAutoFormatting() - keep input as user types
+
             setTimeout(() => {
                 const namaField = document.getElementById('nama');
                 if (namaField) namaField.focus();
@@ -2271,14 +2384,16 @@ function initAutoFormatting() {
             }
         });
 
-        console.log('✅ Enhanced Client Form initialized - FIXED VERSION');
-        console.log('🔧 FIXED: Removed duplicate Account Number field');
-        console.log('📐 LAYOUT: Reorganized form structure for better flow');
-        console.log('🏷️ NEW: Serial Number as standalone field');
-        console.log('📞 Auto phone formatter: +62/0/85x → 6285x format');
-        console.log('📅 Modern modal date picker with GMT+7 timezone');
-        console.log('🔐 Dynamic login fields selection (Default: Starlink)');
-        console.log('🌈 Individual color glow effects for each input');
+        console.log('✅ Enhanced Client Form initialized - IMPROVED UX VERSION');
+        console.log('🎯 NO AUTO-CAPITALIZE: Input tetap sesuai yang diketik user');
+        console.log('⚠️ REQUIRED INDICATORS: Field wajib diberi tanda * merah');
+        console.log('🛡️ SMART VALIDATION: Validasi lengkap sebelum submit');
+        console.log('📋 CLEAR HINTS: Setiap field ada petunjuk wajib/opsional');
+        console.log('📞 AUTO PHONE FORMAT: +62/0/85x → 6285x format');
+        console.log('📅 MODAL DATE PICKER: GMT+7 timezone dengan UI modern');
+        console.log('🔐 DYNAMIC LOGIN FIELDS: Pilih field login yang dibutuhkan');
+        console.log('🌈 GLOW EFFECTS: Setiap input punya warna glow unik');
+        console.log('💡 EMPLOYEE FRIENDLY: Mencegah lupa input data penting!');
     </script>
 </body>
 </html>
