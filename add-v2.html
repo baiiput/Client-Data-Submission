@@ -47,14 +47,14 @@
                 radial-gradient(circle at 20% 20%, rgba(0, 122, 255, 0.08) 0%, transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(52, 199, 89, 0.06) 0%, transparent 50%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 12px;
             color: var(--text-primary);
-            line-height: 1.6;
+            line-height: 1.5;
             -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
@@ -73,7 +73,7 @@
         /* 🎨 Header */
         .header {
             background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-blue-light) 100%);
-            padding: 32px 28px;
+            padding: 20px 20px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -101,22 +101,22 @@
         }
 
         .header h1 {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: white;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             letter-spacing: -0.5px;
         }
 
         .header p {
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.85);
             font-weight: 400;
         }
 
         /* 📊 Stepper Progress */
         .stepper-container {
-            padding: 32px 28px 24px;
+            padding: 20px 20px 16px;
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
         }
@@ -126,7 +126,7 @@
             justify-content: space-between;
             align-items: center;
             position: relative;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .stepper-progress::before {
@@ -162,25 +162,25 @@
         }
 
         .step-circle {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: var(--bg-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--text-tertiary);
             transition: all 0.4s var(--spring);
-            border: 3px solid var(--bg-primary);
+            border: 2px solid var(--bg-primary);
         }
 
         .step-item.active .step-circle {
             background: linear-gradient(135deg, var(--ios-blue), var(--ios-blue-light));
             color: white;
-            transform: scale(1.15);
-            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.35);
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.35);
         }
 
         .step-item.completed .step-circle {
@@ -190,17 +190,17 @@
 
         .step-item.completed .step-circle::after {
             content: '✓';
-            font-size: 1.1rem;
+            font-size: 0.95rem;
         }
 
         .step-label {
-            margin-top: 12px;
-            font-size: 0.75rem;
+            margin-top: 8px;
+            font-size: 0.7rem;
             font-weight: 500;
             color: var(--text-tertiary);
             text-align: center;
             transition: all 0.3s var(--smooth);
-            max-width: 80px;
+            max-width: 70px;
         }
 
         .step-item.active .step-label {
@@ -214,8 +214,8 @@
 
         /* 📝 Form Content */
         .form-content {
-            padding: 28px;
-            min-height: 400px;
+            padding: 20px;
+            min-height: 300px;
         }
 
         .step-content {
@@ -239,40 +239,40 @@
         }
 
         .step-title {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             letter-spacing: -0.5px;
         }
 
         .step-description {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
-            margin-bottom: 28px;
+            margin-bottom: 20px;
         }
 
         /* 🎨 Form Groups */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
 
         .form-group label {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.9rem;
+            gap: 4px;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .required-badge {
             background: var(--ios-red);
             color: white;
-            font-size: 0.65rem;
-            padding: 2px 6px;
-            border-radius: 6px;
+            font-size: 0.6rem;
+            padding: 2px 5px;
+            border-radius: 5px;
             font-weight: 700;
         }
 
@@ -280,12 +280,12 @@
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 14px 16px;
+            padding: 10px 12px;
             border: 2px solid var(--bg-secondary);
-            border-radius: 14px;
+            border-radius: 12px;
             background: white;
             color: var(--text-primary);
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-family: inherit;
             transition: all 0.3s var(--smooth);
             outline: none;
@@ -302,14 +302,14 @@
 
         .form-group textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
             font-family: inherit;
         }
 
         .form-hint {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-tertiary);
-            margin-top: 6px;
+            margin-top: 4px;
             font-style: italic;
         }
 
@@ -326,16 +326,16 @@
 
         .option-card {
             flex: 1;
-            min-width: 140px;
-            padding: 16px;
+            min-width: 120px;
+            padding: 12px;
             border: 2px solid var(--bg-secondary);
-            border-radius: 14px;
+            border-radius: 12px;
             background: white;
             cursor: pointer;
             transition: all 0.3s var(--spring);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .option-card:hover {
@@ -346,27 +346,27 @@
 
         .option-card input[type="radio"],
         .option-card input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             accent-color: var(--ios-blue);
         }
 
         .option-card.selected {
             border-color: var(--ios-blue);
             background: rgba(0, 122, 255, 0.05);
-            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
         }
 
         .option-label {
             font-weight: 500;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-primary);
         }
 
         /* 🚨 Alert Box */
         .alert {
-            padding: 16px 20px;
-            border-radius: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
             margin-bottom: 20px;
             display: none;
             font-weight: 500;
@@ -400,26 +400,26 @@
 
         /* 🎯 Navigation Buttons */
         .navigation {
-            padding: 24px 28px;
+            padding: 16px 20px;
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border-top: 1px solid var(--glass-border);
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: space-between;
         }
 
         .btn {
-            padding: 14px 28px;
+            padding: 11px 20px;
             border: none;
-            border-radius: 14px;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s var(--spring);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-family: inherit;
         }
 
@@ -440,25 +440,25 @@
         .btn-primary {
             background: linear-gradient(135deg, var(--ios-blue), var(--ios-blue-light));
             color: white;
-            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
             flex: 1;
         }
 
         .btn-primary:hover {
-            box-shadow: 0 12px 28px rgba(0, 122, 255, 0.4);
-            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.4);
+            transform: translateY(-1px);
         }
 
         .btn-success {
             background: linear-gradient(135deg, var(--ios-green), #30D158);
             color: white;
-            box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3);
+            box-shadow: 0 6px 16px rgba(52, 199, 89, 0.3);
             flex: 1;
         }
 
         .btn-success:hover {
-            box-shadow: 0 12px 28px rgba(52, 199, 89, 0.4);
-            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 199, 89, 0.4);
+            transform: translateY(-1px);
         }
 
         .btn:disabled {
@@ -477,8 +477,8 @@
         .info-card {
             background: white;
             border: 2px solid var(--bg-secondary);
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 14px;
+            padding: 16px;
             transition: all 0.3s var(--smooth);
         }
 
@@ -489,10 +489,10 @@
         }
 
         .info-card-title {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--text-tertiary);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -501,7 +501,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            padding: 10px 0;
+            padding: 8px 0;
             border-bottom: 1px solid var(--bg-secondary);
         }
 
@@ -510,13 +510,13 @@
         }
 
         .info-label {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
             font-weight: 500;
         }
 
         .info-value {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-primary);
             font-weight: 600;
             text-align: right;
@@ -629,9 +629,9 @@
         /* 🎨 Form Row Layout */
         .form-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
         }
     </style>
 </head>
