@@ -785,14 +785,14 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="kitNumber">📦 KIT Number</label>
+                                <label for="kitNumber">📦 KIT Number <span class="required-badge">WAJIB</span></label>
                                 <input type="text" id="kitNumber" name="kitNumber" placeholder="KIT123456789">
-                                <div class="form-hint">Opsional</div>
+                                <div class="form-hint required">Wajib diisi</div>
                             </div>
                             <div class="form-group">
-                                <label for="serialNumber">🏷️ Serial Number</label>
+                                <label for="serialNumber">🏷️ Serial Number <span class="required-badge">WAJIB</span></label>
                                 <input type="text" id="serialNumber" name="serialNumber" placeholder="SN987654321">
-                                <div class="form-hint">Opsional</div>
+                                <div class="form-hint required">Wajib diisi</div>
                             </div>
                         </div>
 
@@ -833,17 +833,17 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="status">📊 Status</label>
+                                <label for="status">📊 Status <span class="required-badge">WAJIB</span></label>
                                 <select id="status" name="status">
                                     <option value="">Pilih status...</option>
                                     <option value="Terbayarkan">Terbayarkan</option>
                                     <option value="Active">Active</option>
                                     <option value="Migrasi">Migrasi</option>
                                 </select>
-                                <div class="form-hint">Opsional</div>
+                                <div class="form-hint required">Wajib dipilih</div>
                             </div>
                             <div class="form-group">
-                                <label for="paket">📦 Paket</label>
+                                <label for="paket">📦 Paket <span class="required-badge">WAJIB</span></label>
                                 <select id="paket" name="paket">
                                     <option value="">Pilih paket...</option>
                                     <option value="Regular">Regular</option>
@@ -852,13 +852,13 @@
                                     <option value="Local Priority">Local Priority</option>
                                     <option value="International">International</option>
                                 </select>
-                                <div class="form-hint">Opsional</div>
+                                <div class="form-hint required">Wajib dipilih</div>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="last4Digit">🔢 Last 4 Digit</label>
+                                <label for="last4Digit">🔢 Last 4 Digit <span class="required-badge">WAJIB</span></label>
                                 <select id="last4Digit" name="last4Digit">
                                     <option value="">Pilih...</option>
                                     <option value="1662">1662</option>
@@ -869,7 +869,7 @@
                                     <option value="0900">0900</option>
                                     <option value="3402">3402</option>
                                 </select>
-                                <div class="form-hint">Opsional</div>
+                                <div class="form-hint required">Wajib dipilih</div>
                             </div>
                             <div class="form-group">
                                 <label for="idTransaksi">🆔 ID Transaksi</label>
@@ -1098,10 +1098,18 @@
         }
 
         function validateStep3() {
+            const errors = [];
+
+            const kitNumber = document.getElementById('kitNumber').value.trim();
+            const serialNumber = document.getElementById('serialNumber').value.trim();
             const alamat = document.getElementById('alamat').value.trim();
 
-            if (!alamat) {
-                showAlert('❌ Alamat Lengkap wajib diisi!', 'error');
+            if (!kitNumber) errors.push('KIT Number');
+            if (!serialNumber) errors.push('Serial Number');
+            if (!alamat) errors.push('Alamat Lengkap');
+
+            if (errors.length > 0) {
+                showAlert(`❌ Field wajib belum diisi: ${errors.join(', ')}`, 'error');
                 return false;
             }
 
@@ -1113,9 +1121,15 @@
 
             const tanggalJatuhTempo = document.getElementById('customDateInput').value.trim();
             const payment = document.getElementById('payment').value.trim();
+            const status = document.getElementById('status').value.trim();
+            const paket = document.getElementById('paket').value.trim();
+            const last4Digit = document.getElementById('last4Digit').value.trim();
 
             if (!tanggalJatuhTempo) errors.push('Tanggal Jatuh Tempo');
             if (!payment) errors.push('Payment Method');
+            if (!status) errors.push('Status');
+            if (!paket) errors.push('Paket');
+            if (!last4Digit) errors.push('Last 4 Digit');
 
             if (errors.length > 0) {
                 showAlert(`❌ Field wajib belum diisi: ${errors.join(', ')}`, 'error');
@@ -1310,8 +1324,21 @@
             loadingDiv.style.display = 'block';
 
             try {
+                // Validate SCRIPT_URL
+                if (!SCRIPT_URL || SCRIPT_URL.includes('YOUR_SCRIPT_ID')) {
+                    isSubmitting = false;
+                    submitBtn.disabled = false;
+                    loadingDiv.style.display = 'none';
+                    showAlert('❌ Error: SCRIPT_URL belum dikonfigurasi! Silakan cek file config.js', 'error');
+                    console.error('❌ SCRIPT_URL not configured:', SCRIPT_URL);
+                    return;
+                }
+
+                console.log('🚀 Starting JSONP request to:', SCRIPT_URL);
+
                 const callbackName = 'handleResponse_' + Date.now();
                 window[callbackName] = function(result) {
+                    console.log('✅ Response received:', result);
                     isSubmitting = false;
                     submitBtn.disabled = false;
                     loadingDiv.style.display = 'none';
@@ -1329,15 +1356,22 @@
 
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     } else {
+                        console.error('❌ Server error:', result);
                         showAlert(`❌ Error: ${result.message || 'Terjadi kesalahan saat menyimpan data'}`, 'error');
                     }
                 };
 
                 const script = document.createElement('script');
                 const requestData = encodeURIComponent(JSON.stringify(data));
-                script.src = `${SCRIPT_URL}?action=submitClientData&data=${requestData}&callback=${callbackName}`;
+                const fullUrl = `${SCRIPT_URL}?action=submitClientData&data=${requestData}&callback=${callbackName}`;
+
+                console.log('📝 Request URL length:', fullUrl.length);
+                console.log('📝 Data size:', JSON.stringify(data).length, 'bytes');
+
+                script.src = fullUrl;
 
                 const timeoutId = setTimeout(() => {
+                    console.error('⏰ Request timeout after 30 seconds');
                     if (document.head.contains(script)) {
                         document.head.removeChild(script);
                     }
@@ -1345,10 +1379,11 @@
                     isSubmitting = false;
                     submitBtn.disabled = false;
                     loadingDiv.style.display = 'none';
-                    showAlert('⏰ Request timeout - server tidak merespons', 'error');
+                    showAlert('⏰ Request timeout - server tidak merespons dalam 30 detik', 'error');
                 }, 30000);
 
                 script.onload = () => {
+                    console.log('✅ Script loaded successfully');
                     clearTimeout(timeoutId);
                     setTimeout(() => {
                         if (document.head.contains(script)) {
@@ -1358,7 +1393,9 @@
                     }, 1000);
                 };
 
-                script.onerror = () => {
+                script.onerror = (e) => {
+                    console.error('❌ Script load error:', e);
+                    console.error('❌ Failed URL:', SCRIPT_URL);
                     clearTimeout(timeoutId);
                     if (document.head.contains(script)) {
                         document.head.removeChild(script);
@@ -1367,12 +1404,14 @@
                     isSubmitting = false;
                     submitBtn.disabled = false;
                     loadingDiv.style.display = 'none';
-                    showAlert('❌ Network error - tidak dapat menghubungi server', 'error');
+                    showAlert('❌ Network error - Tidak dapat menghubungi server. Periksa:<br>1. Koneksi internet<br>2. URL API di config.js<br>3. Console browser untuk detail error', 'error');
                 };
 
+                console.log('📤 Appending script to head...');
                 document.head.appendChild(script);
 
             } catch (error) {
+                console.error('❌ Exception in submitToAppsScript:', error);
                 isSubmitting = false;
                 submitBtn.disabled = false;
                 loadingDiv.style.display = 'none';
@@ -1432,6 +1471,10 @@
             if (data.noRegister) {
                 data.noRegister = formatPhoneNumber(data.noRegister);
             }
+
+            // Debug: log data being submitted
+            console.log('📤 Submitting data:', data);
+            console.log('🔗 API URL:', SCRIPT_URL);
 
             submitToAppsScript(data);
         });
