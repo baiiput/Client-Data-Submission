@@ -204,9 +204,9 @@
             font-weight: 400;
         }
 
-        /* 📊 Stepper Progress */
+        /* 📊 Stepper Progress - Larger & Modern */
         .stepper-container {
-            padding: 20px 20px 16px;
+            padding: 24px 20px 20px;
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
         }
@@ -216,27 +216,33 @@
             justify-content: space-between;
             align-items: center;
             position: relative;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .stepper-progress::before {
             content: '';
             position: absolute;
-            top: 20px;
-            left: 40px;
-            right: 40px;
-            height: 3px;
-            background: var(--bg-secondary);
+            top: 28px;
+            left: 50px;
+            right: 50px;
+            height: 5px;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.08) 0%,
+                rgba(255, 255, 255, 0.04) 100%
+            );
+            backdrop-filter: blur(10px);
             z-index: 0;
             border-radius: 10px;
         }
 
         .progress-line {
             position: absolute;
-            top: 20px;
-            left: 40px;
-            height: 3px;
+            top: 28px;
+            left: 50px;
+            height: 5px;
             background: linear-gradient(90deg, var(--ios-blue), var(--ios-blue-light));
+            box-shadow: 0 2px 12px rgba(0, 122, 255, 0.4);
             z-index: 1;
             border-radius: 10px;
             transition: width 0.6s var(--spring);
@@ -252,54 +258,76 @@
         }
 
         .step-circle {
-            width: 32px;
-            height: 32px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
-            background: var(--bg-secondary);
+            /* 🌊 Liquid Glass Effect */
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 100%
+            );
+            backdrop-filter: blur(30px) saturate(160%);
+            -webkit-backdrop-filter: blur(30px) saturate(160%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 0.8rem;
+            font-weight: 700;
+            font-size: 1.1rem;
             color: var(--text-tertiary);
             transition: all 0.4s var(--spring);
-            border: 2px solid var(--bg-primary);
+            border: 0;
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.15),
+                0 4px 16px rgba(0, 0, 0, 0.15);
         }
 
         .step-item.active .step-circle {
             background: linear-gradient(135deg, var(--ios-blue), var(--ios-blue-light));
             color: white;
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.35);
+            transform: scale(1.15);
+            box-shadow:
+                inset 0 2px 2px rgba(255, 255, 255, 0.3),
+                0 8px 32px rgba(0, 122, 255, 0.5),
+                0 4px 16px rgba(0, 122, 255, 0.3);
         }
 
         .step-item.completed .step-circle {
-            background: var(--ios-green);
+            background: linear-gradient(135deg, var(--ios-green), #2FD566);
             color: white;
+            box-shadow:
+                inset 0 2px 2px rgba(255, 255, 255, 0.3),
+                0 8px 32px rgba(52, 199, 89, 0.4),
+                0 4px 16px rgba(52, 199, 89, 0.3);
         }
 
         .step-item.completed .step-circle::after {
             content: '✓';
-            font-size: 0.95rem;
+            font-size: 1.3rem;
+            font-weight: 800;
         }
 
         .step-label {
-            margin-top: 8px;
-            font-size: 0.7rem;
-            font-weight: 500;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
             color: var(--text-tertiary);
             text-align: center;
             transition: all 0.3s var(--smooth);
-            max-width: 70px;
+            max-width: 90px;
+            line-height: 1.3;
         }
 
         .step-item.active .step-label {
             color: var(--ios-blue);
-            font-weight: 600;
+            font-weight: 700;
+            transform: scale(1.05);
         }
 
         .step-item.completed .step-label {
             color: var(--ios-green);
+            font-weight: 600;
         }
 
         /* 📝 Form Content */
