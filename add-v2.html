@@ -776,6 +776,17 @@
                             <input type="tel" id="nomorCS" name="nomorCS" placeholder="628123456789">
                             <div class="form-hint required">Format: 08xx atau 62xx (auto-format)</div>
                         </div>
+
+                        <div class="form-group">
+                            <label for="tipePelanggan">🏷️ Tipe Pelanggan</label>
+                            <select id="tipePelanggan" name="tipePelanggan">
+                                <option value="">Pilih tipe...</option>
+                                <option value="Full Support">Full Support</option>
+                                <option value="Small Support">Small Support</option>
+                                <option value="Non Support">Non Support</option>
+                            </select>
+                            <div class="form-hint">Opsional</div>
+                        </div>
                     </div>
 
                     <!-- STEP 3: Hardware & Location -->
@@ -1170,7 +1181,8 @@
                         { label: 'Nama Client', value: data.nama },
                         { label: 'Account Number', value: data.accNo },
                         { label: 'Email Client', value: data.emailClient },
-                        { label: 'Nomor CS', value: data.nomorCS }
+                        { label: 'Nomor CS', value: data.nomorCS },
+                        { label: 'Tipe Pelanggan', value: data.tipePelanggan || '-' }
                     ]
                 },
                 {

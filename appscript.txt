@@ -1830,8 +1830,8 @@ function submitClientData(clientData) {
       clientData.paket || '',                   // P: Paket ✅ MOVED
       clientData.last4Digit || '',              // Q: Last 4 Digit ✅ MOVED
       clientData.noRegister || '',              // R: No Register ✅ MOVED
-      '',                                       // S: Cadangan 1 ✅ NEW
-      '',                                       // T: Cadangan 2 ✅ NEW
+      clientData.tipePelanggan || '',           // S: Tipe Pelanggan ✅ NEW (Full Support, Small Support, Non Support)
+      '',                                       // T: Cadangan ✅ NEW
       '',                                       // U: JATUH TEMPO ✅ MOVED
       '',                                       // V: PROSES ✅ MOVED
       '',                                       // W: SEGERA ✅ MOVED
