@@ -22,35 +22,74 @@
             --ios-orange: #FF9500;
             --ios-purple: #AF52DE;
 
-            /* Background & Glass */
-            --bg-primary: #F2F2F7;
-            --bg-secondary: #E5E5EA;
-            --glass-bg: rgba(255, 255, 255, 0.72);
-            --glass-border: rgba(255, 255, 255, 0.18);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-            --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.12);
-
-            /* Text */
-            --text-primary: #000000;
-            --text-secondary: #3C3C43;
-            --text-tertiary: #8E8E93;
-
             /* iOS Spring Animation */
             --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
             --smooth: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* 🌙 Dark Mode (Default) */
+        body {
+            /* Dark Mode Colors */
+            --bg-primary: #000000;
+            --bg-secondary: #1C1C1E;
+            --bg-tertiary: #2C2C2E;
+            --glass-bg: rgba(28, 28, 30, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
+            --text-primary: #FFFFFF;
+            --text-secondary: #EBEBF5;
+            --text-tertiary: #8E8E93;
+            --input-bg: rgba(44, 44, 46, 0.8);
+            --card-bg: rgba(28, 28, 30, 0.9);
+        }
+
+        /* ☀️ Light Mode */
+        body.light-mode {
+            --bg-primary: #F2F2F7;
+            --bg-secondary: #E5E5EA;
+            --bg-tertiary: #FFFFFF;
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.12);
+            --text-primary: #000000;
+            --text-secondary: #3C3C43;
+            --text-tertiary: #8E8E93;
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
             background: var(--bg-primary);
-            background-image:
-                radial-gradient(circle at 20% 20%, rgba(0, 122, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(52, 199, 89, 0.06) 0%, transparent 50%);
             min-height: 100vh;
             padding: 12px;
             color: var(--text-primary);
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
+            transition: background 0.3s var(--smooth), color 0.3s var(--smooth);
+        }
+
+        /* Dark mode gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(0, 122, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(175, 82, 222, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            transition: opacity 0.3s var(--smooth);
+        }
+
+        body.light-mode::before {
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(0, 122, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(52, 199, 89, 0.06) 0%, transparent 50%);
         }
 
         .container {
@@ -283,7 +322,7 @@
             padding: 10px 12px;
             border: 2px solid var(--bg-secondary);
             border-radius: 12px;
-            background: white;
+            background: var(--input-bg);
             color: var(--text-primary);
             font-size: 0.95rem;
             font-family: inherit;
@@ -291,12 +330,17 @@
             outline: none;
         }
 
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-tertiary);
+        }
+
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
             border-color: var(--ios-blue);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+            background: var(--input-bg);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
             transform: translateY(-1px);
         }
 
@@ -330,7 +374,7 @@
             padding: 12px;
             border: 2px solid var(--bg-secondary);
             border-radius: 12px;
-            background: white;
+            background: var(--input-bg);
             cursor: pointer;
             transition: all 0.3s var(--spring);
             display: flex;
@@ -475,7 +519,7 @@
         }
 
         .info-card {
-            background: white;
+            background: var(--card-bg);
             border: 2px solid var(--bg-secondary);
             border-radius: 14px;
             padding: 16px;
@@ -484,7 +528,7 @@
 
         .info-card:hover {
             border-color: var(--ios-blue);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
             transform: translateY(-2px);
         }
 
@@ -578,6 +622,72 @@
             to { opacity: 1; }
         }
 
+        /* 🌓 Dark/Light Mode Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s var(--spring);
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glass-shadow-lg);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            transition: all 0.3s var(--smooth);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.4s var(--spring);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        body.light-mode .toggle-switch {
+            background: var(--ios-orange);
+        }
+
+        body.light-mode .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        .toggle-icon {
+            font-size: 12px;
+        }
+
         /* 📱 Responsive */
         @media (max-width: 768px) {
             body {
@@ -636,6 +746,15 @@
     </style>
 </head>
 <body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+        <div class="toggle-switch">
+            <div class="toggle-slider">
+                <span class="toggle-icon">🌙</span>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="glass-card">
             <!-- Header -->
@@ -1539,8 +1658,45 @@
             });
         });
 
+        // 🌓 Theme Toggle Functions
+        function toggleTheme() {
+            const body = document.body;
+            const toggleIcon = document.querySelector('.toggle-icon');
+
+            body.classList.toggle('light-mode');
+
+            // Update icon
+            if (body.classList.contains('light-mode')) {
+                toggleIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'light');
+                console.log('🌞 Switched to Light Mode');
+            } else {
+                toggleIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+                console.log('🌙 Switched to Dark Mode');
+            }
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const toggleIcon = document.querySelector('.toggle-icon');
+
+            // Default to dark mode
+            if (savedTheme === 'light') {
+                body.classList.add('light-mode');
+                toggleIcon.textContent = '☀️';
+                console.log('🌞 Loaded Light Mode from localStorage');
+            } else {
+                body.classList.remove('light-mode');
+                toggleIcon.textContent = '🌙';
+                console.log('🌙 Loaded Dark Mode (default)');
+            }
+        }
+
         // 🚀 Initialize
         window.addEventListener('load', function() {
+            loadTheme(); // Load theme first
             loadSavedData();
             updateStepper();
 
@@ -1553,6 +1709,7 @@
             console.log('📱 Smooth animations enabled');
             console.log('💾 Auto-save to localStorage enabled');
             console.log('🎯 5-step process with confirmation page');
+            console.log('🌓 Dark/Light mode toggle enabled (Default: Dark Mode)');
         });
     </script>
 </body>
