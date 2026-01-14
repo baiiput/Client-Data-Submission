@@ -1601,42 +1601,46 @@ function getReportData(month, year) {
 function doPost(e) {
   try {
     Logger.log('=== DOPOST REQUEST ===');
+    Logger.log('e.parameter: ' + JSON.stringify(e.parameter));
+    Logger.log('e.postData exists: ' + (e.postData ? 'yes' : 'no'));
 
-    // Check if e.postData exists
-    if (!e.postData || !e.postData.contents) {
-      Logger.log('❌ No POST data received');
-      Logger.log('e.parameter: ' + JSON.stringify(e.parameter));
+    var postData;
+    var action;
 
-      // Fallback: Try to get data from e.parameter
-      if (e.parameter && e.parameter.action) {
-        Logger.log('⚠️ Using e.parameter as fallback');
-        var action = e.parameter.action;
-        var postData = e.parameter;
+    // ✅ PRIORITY 1: Check e.parameter first (most reliable for x-www-form-urlencoded)
+    if (e.parameter && e.parameter.action) {
+      Logger.log('✅ Using e.parameter (URL-encoded format auto-parsed by Apps Script)');
+      action = e.parameter.action;
 
-        // Parse clientData if it's a string
-        if (e.parameter.clientData && typeof e.parameter.clientData === 'string') {
-          try {
-            postData.clientData = JSON.parse(e.parameter.clientData);
-          } catch (err) {
-            Logger.log('❌ Failed to parse clientData: ' + err.message);
-          }
+      // For submitClientData, parse the clientData JSON string
+      if (action === 'submitClientData' && e.parameter.clientData) {
+        try {
+          postData = {
+            action: action,
+            clientData: JSON.parse(e.parameter.clientData)
+          };
+          Logger.log('✅ Parsed clientData from e.parameter');
+        } catch (parseError) {
+          Logger.log('❌ Failed to parse clientData: ' + parseError.message);
+          return ContentService.createTextOutput(JSON.stringify({
+            status: 'error',
+            message: 'Invalid clientData JSON: ' + parseError.message
+          })).setMimeType(ContentService.MimeType.JSON);
         }
       } else {
-        return ContentService.createTextOutput(JSON.stringify({
-          status: 'error',
-          message: 'No POST data received in e.postData or e.parameter'
-        })).setMimeType(ContentService.MimeType.JSON);
+        // For other actions, use e.parameter directly
+        postData = e.parameter;
       }
-    } else {
+    }
+    // ✅ PRIORITY 2: Fallback to e.postData.contents if e.parameter not available
+    else if (e.postData && e.postData.contents) {
+      Logger.log('⚠️ e.parameter not available, using e.postData.contents');
       Logger.log('POST data: ' + e.postData.contents);
       Logger.log('Content type: ' + e.postData.type);
 
-      var postData;
-      var action;
-
-      // ✅ Detect format first, then parse accordingly
       var contents = e.postData.contents.trim();
 
+      // Detect format by first character
       if (contents.charAt(0) === '{') {
         // JSON format
         Logger.log('Detected JSON format');
@@ -1652,7 +1656,7 @@ function doPost(e) {
           })).setMimeType(ContentService.MimeType.JSON);
         }
       } else {
-        // URL-encoded format (application/x-www-form-urlencoded)
+        // URL-encoded format
         Logger.log('Detected URL-encoded format');
         try {
           var params = parseFormData(contents);
@@ -1676,6 +1680,14 @@ function doPost(e) {
           })).setMimeType(ContentService.MimeType.JSON);
         }
       }
+    }
+    // ❌ No data found
+    else {
+      Logger.log('❌ No POST data found in e.parameter or e.postData');
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'error',
+        message: 'No POST data received'
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
     Logger.log('POST Action: ' + action);
