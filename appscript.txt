@@ -1601,42 +1601,35 @@ function getReportData(month, year) {
 function doPost(e) {
   try {
     Logger.log('=== DOPOST REQUEST ===');
+
+    // Check if e.postData exists
+    if (!e.postData || !e.postData.contents) {
+      Logger.log('❌ No POST data received');
+      Logger.log('e object: ' + JSON.stringify(e));
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'error',
+        message: 'No POST data received. Make sure Content-Type is application/json.'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     Logger.log('POST data: ' + e.postData.contents);
     Logger.log('Content type: ' + e.postData.type);
 
     var postData;
     var action;
 
-    // ✅ UPDATED: Support both FormData and JSON format
+    // ✅ Parse POST data as JSON
     try {
-      // Try to parse as JSON first (old format)
       postData = JSON.parse(e.postData.contents);
       action = postData.action;
-      Logger.log('✅ Parsed as JSON (old format)');
+      Logger.log('✅ Parsed as JSON');
+      Logger.log('Action: ' + action);
     } catch (parseError) {
-      // If JSON parse fails, try FormData format (new format from add-v2.html)
-      Logger.log('⚠️ Not JSON, trying FormData format...');
-      try {
-        var params = parseFormData(e.postData.contents);
-        action = params.action;
-
-        // For submitClientData, parse the data field
-        if (params.data) {
-          postData = {
-            action: action,
-            clientData: JSON.parse(params.data)
-          };
-          Logger.log('✅ Parsed as FormData (new format from add-v2.html)');
-        } else {
-          postData = params;
-        }
-      } catch (formDataError) {
-        Logger.log('❌ FormData Parse error: ' + formDataError.message);
-        return ContentService.createTextOutput(JSON.stringify({
-          status: 'error',
-          message: 'Invalid request format: ' + formDataError.message
-        })).setMimeType(ContentService.MimeType.JSON);
-      }
+      Logger.log('❌ JSON Parse error: ' + parseError.message);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'error',
+        message: 'Invalid JSON: ' + parseError.message
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
     Logger.log('POST Action: ' + action);

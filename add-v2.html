@@ -1338,12 +1338,13 @@
                 console.log('📦 Data yang akan dikirim:', JSON.stringify(data, null, 2));
                 console.log('📊 Data size:', JSON.stringify(data).length, 'bytes');
 
-                // Create FormData for POST request
-                const formData = new FormData();
-                formData.append('action', 'submitClientData');
-                formData.append('data', JSON.stringify(data));
+                // Create JSON payload for POST request
+                const payload = {
+                    action: 'submitClientData',
+                    clientData: data
+                };
 
-                console.log('📤 Sending POST request...');
+                console.log('📤 Sending POST request with JSON payload...');
 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
@@ -1353,7 +1354,10 @@
 
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body: formData,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload),
                     signal: controller.signal,
                     redirect: 'follow'
                 });
