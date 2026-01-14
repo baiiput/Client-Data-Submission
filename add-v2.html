@@ -27,21 +27,21 @@
             --smooth: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* 🌙 Dark Mode (Default) */
+        /* 🌙 Dark Mode (Default) - iOS Accurate */
         body {
-            /* Dark Mode Colors */
-            --bg-primary: #000000;
-            --bg-secondary: #1C1C1E;
-            --bg-tertiary: #2C2C2E;
-            --glass-bg: rgba(28, 28, 30, 0.72);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
+            /* iOS Dark Mode Colors */
+            --bg-primary: #1C1C1E;
+            --bg-secondary: #2C2C2E;
+            --bg-tertiary: #3A3A3C;
+            --glass-bg: rgba(44, 44, 46, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
             --text-primary: #FFFFFF;
             --text-secondary: #EBEBF5;
-            --text-tertiary: #8E8E93;
-            --input-bg: rgba(44, 44, 46, 0.8);
-            --card-bg: rgba(28, 28, 30, 0.9);
+            --text-tertiary: #98989D;
+            --input-bg: rgba(58, 58, 60, 0.9);
+            --card-bg: rgba(44, 44, 46, 0.95);
         }
 
         /* ☀️ Light Mode */
@@ -71,7 +71,7 @@
             transition: background 0.3s var(--smooth), color 0.3s var(--smooth);
         }
 
-        /* Dark mode gradient background */
+        /* Gradient background */
         body::before {
             content: '';
             position: fixed;
@@ -80,10 +80,10 @@
             width: 100%;
             height: 100%;
             background-image:
-                radial-gradient(circle at 20% 20%, rgba(0, 122, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(175, 82, 222, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 20% 20%, rgba(0, 122, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(175, 82, 222, 0.08) 0%, transparent 50%);
             z-index: -1;
-            transition: opacity 0.3s var(--smooth);
+            transition: all 0.3s var(--smooth);
         }
 
         body.light-mode::before {
