@@ -1634,33 +1634,45 @@ function doPost(e) {
       var postData;
       var action;
 
-      // ✅ Try to parse as JSON first
-      try {
-        postData = JSON.parse(e.postData.contents);
-        action = postData.action;
-        Logger.log('✅ Parsed as JSON');
-      } catch (parseError) {
-        // If not JSON, try URLSearchParams format (application/x-www-form-urlencoded)
-        Logger.log('⚠️ Not JSON, trying URL-encoded format...');
+      // ✅ Detect format first, then parse accordingly
+      var contents = e.postData.contents.trim();
+
+      if (contents.charAt(0) === '{') {
+        // JSON format
+        Logger.log('Detected JSON format');
         try {
-          var params = parseFormData(e.postData.contents);
+          postData = JSON.parse(contents);
+          action = postData.action;
+          Logger.log('✅ Parsed as JSON');
+        } catch (jsonError) {
+          Logger.log('❌ JSON parse error: ' + jsonError.message);
+          return ContentService.createTextOutput(JSON.stringify({
+            status: 'error',
+            message: 'Invalid JSON: ' + jsonError.message
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      } else {
+        // URL-encoded format (application/x-www-form-urlencoded)
+        Logger.log('Detected URL-encoded format');
+        try {
+          var params = parseFormData(contents);
           action = params.action;
 
-          // Parse clientData JSON string
           if (params.clientData) {
             postData = {
               action: action,
               clientData: JSON.parse(params.clientData)
             };
-            Logger.log('✅ Parsed as URL-encoded format');
+            Logger.log('✅ Parsed URL-encoded data with clientData');
           } else {
             postData = params;
+            Logger.log('✅ Parsed URL-encoded data');
           }
         } catch (urlError) {
-          Logger.log('❌ Parse error: ' + urlError.message);
+          Logger.log('❌ URL-encoded parse error: ' + urlError.message);
           return ContentService.createTextOutput(JSON.stringify({
             status: 'error',
-            message: 'Failed to parse request: ' + urlError.message
+            message: 'Parse error: ' + urlError.message
           })).setMimeType(ContentService.MimeType.JSON);
         }
       }
