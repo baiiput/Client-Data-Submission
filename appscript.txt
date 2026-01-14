@@ -1605,31 +1605,65 @@ function doPost(e) {
     // Check if e.postData exists
     if (!e.postData || !e.postData.contents) {
       Logger.log('❌ No POST data received');
-      Logger.log('e object: ' + JSON.stringify(e));
-      return ContentService.createTextOutput(JSON.stringify({
-        status: 'error',
-        message: 'No POST data received. Make sure Content-Type is application/json.'
-      })).setMimeType(ContentService.MimeType.JSON);
-    }
+      Logger.log('e.parameter: ' + JSON.stringify(e.parameter));
 
-    Logger.log('POST data: ' + e.postData.contents);
-    Logger.log('Content type: ' + e.postData.type);
+      // Fallback: Try to get data from e.parameter
+      if (e.parameter && e.parameter.action) {
+        Logger.log('⚠️ Using e.parameter as fallback');
+        var action = e.parameter.action;
+        var postData = e.parameter;
 
-    var postData;
-    var action;
+        // Parse clientData if it's a string
+        if (e.parameter.clientData && typeof e.parameter.clientData === 'string') {
+          try {
+            postData.clientData = JSON.parse(e.parameter.clientData);
+          } catch (err) {
+            Logger.log('❌ Failed to parse clientData: ' + err.message);
+          }
+        }
+      } else {
+        return ContentService.createTextOutput(JSON.stringify({
+          status: 'error',
+          message: 'No POST data received in e.postData or e.parameter'
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+    } else {
+      Logger.log('POST data: ' + e.postData.contents);
+      Logger.log('Content type: ' + e.postData.type);
 
-    // ✅ Parse POST data as JSON
-    try {
-      postData = JSON.parse(e.postData.contents);
-      action = postData.action;
-      Logger.log('✅ Parsed as JSON');
-      Logger.log('Action: ' + action);
-    } catch (parseError) {
-      Logger.log('❌ JSON Parse error: ' + parseError.message);
-      return ContentService.createTextOutput(JSON.stringify({
-        status: 'error',
-        message: 'Invalid JSON: ' + parseError.message
-      })).setMimeType(ContentService.MimeType.JSON);
+      var postData;
+      var action;
+
+      // ✅ Try to parse as JSON first
+      try {
+        postData = JSON.parse(e.postData.contents);
+        action = postData.action;
+        Logger.log('✅ Parsed as JSON');
+      } catch (parseError) {
+        // If not JSON, try URLSearchParams format (application/x-www-form-urlencoded)
+        Logger.log('⚠️ Not JSON, trying URL-encoded format...');
+        try {
+          var params = parseFormData(e.postData.contents);
+          action = params.action;
+
+          // Parse clientData JSON string
+          if (params.clientData) {
+            postData = {
+              action: action,
+              clientData: JSON.parse(params.clientData)
+            };
+            Logger.log('✅ Parsed as URL-encoded format');
+          } else {
+            postData = params;
+          }
+        } catch (urlError) {
+          Logger.log('❌ Parse error: ' + urlError.message);
+          return ContentService.createTextOutput(JSON.stringify({
+            status: 'error',
+            message: 'Failed to parse request: ' + urlError.message
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
     }
 
     Logger.log('POST Action: ' + action);

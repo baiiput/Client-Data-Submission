@@ -1338,13 +1338,13 @@
                 console.log('📦 Data yang akan dikirim:', JSON.stringify(data, null, 2));
                 console.log('📊 Data size:', JSON.stringify(data).length, 'bytes');
 
-                // Create JSON payload for POST request
-                const payload = {
-                    action: 'submitClientData',
-                    clientData: data
-                };
+                // Create payload for POST request
+                // Use URLSearchParams for better compatibility with Google Apps Script
+                const payload = new URLSearchParams();
+                payload.append('action', 'submitClientData');
+                payload.append('clientData', JSON.stringify(data));
 
-                console.log('📤 Sending POST request with JSON payload...');
+                console.log('📤 Sending POST request...');
 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
@@ -1355,9 +1355,9 @@
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     },
-                    body: JSON.stringify(payload),
+                    body: payload,
                     signal: controller.signal,
                     redirect: 'follow'
                 });
