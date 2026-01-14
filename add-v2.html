@@ -337,17 +337,31 @@
         .form-group select {
             width: 100%;
             padding: 10px 12px;
-            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            background: rgba(50, 50, 52, 0.6);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+            /* 🎨 PILIH SALAH SATU STYLE (Uncomment yang diinginkan) */
+
+            /* OPSI 1: Kebiruan Soft - iOS Natural (DEFAULT) */
+            background: rgba(65, 75, 90, 0.5);
+
+            /* OPSI 2: Abu Terang Smooth */
+            /* background: rgba(85, 85, 92, 0.5); */
+
+            /* OPSI 3: Ungu Gelap Elegant */
+            /* background: rgba(75, 70, 90, 0.5); */
+
+            /* OPSI 4: Hijau Gelap Natural */
+            /* background: rgba(65, 80, 75, 0.5); */
+
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
             color: var(--text-primary);
             font-size: 0.95rem;
             font-family: inherit;
             transition: all 0.3s var(--smooth);
             outline: none;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         .form-group input::placeholder,
@@ -359,7 +373,11 @@
         .form-group textarea:focus,
         .form-group select:focus {
             border-color: var(--ios-blue);
-            background: rgba(50, 50, 52, 0.75);
+            /* Sesuaikan dengan opsi yang dipilih di atas */
+            background: rgba(65, 75, 90, 0.7);  /* OPSI 1 */
+            /* background: rgba(85, 85, 92, 0.7); */  /* OPSI 2 */
+            /* background: rgba(75, 70, 90, 0.7); */  /* OPSI 3 */
+            /* background: rgba(65, 80, 75, 0.7); */  /* OPSI 4 */
             box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15), 0 8px 24px rgba(0, 0, 0, 0.18);
             transform: translateY(-1px);
         }
@@ -392,17 +410,21 @@
             flex: 1;
             min-width: 120px;
             padding: 12px;
-            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            background: rgba(50, 50, 52, 0.6);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            /* Gunakan warna yang sama dengan form inputs */
+            background: rgba(65, 75, 90, 0.5);  /* OPSI 1 */
+            /* background: rgba(85, 85, 92, 0.5); */  /* OPSI 2 */
+            /* background: rgba(75, 70, 90, 0.5); */  /* OPSI 3 */
+            /* background: rgba(65, 80, 75, 0.5); */  /* OPSI 4 */
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
             cursor: pointer;
             transition: all 0.3s var(--spring);
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         .option-card:hover {
