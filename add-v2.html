@@ -92,21 +92,55 @@
                 radial-gradient(circle at 80% 80%, rgba(52, 199, 89, 0.06) 0%, transparent 50%);
         }
 
-        /* ☀️ Light Mode Form Glass Effect */
+        /* ☀️ Light Mode Liquid Glass Effect */
         body.light-mode .form-group input,
         body.light-mode .form-group textarea,
         body.light-mode .form-group select,
         body.light-mode .option-card {
-            background: rgba(255, 255, 255, 0.65);
-            border: 1.5px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.8) 0%,
+                rgba(255, 255, 255, 0.6) 100%
+            );
+            backdrop-filter: blur(40px) saturate(180%) brightness(1.05);
+            -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.05);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.9),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.04),
+                0 8px 32px rgba(0, 0, 0, 0.06),
+                0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         body.light-mode .form-group input:focus,
         body.light-mode .form-group textarea:focus,
         body.light-mode .form-group select:focus {
-            background: rgba(255, 255, 255, 0.85);
-            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.12), 0 8px 24px rgba(0, 0, 0, 0.08);
+            background: linear-gradient(
+                135deg,
+                rgba(0, 122, 255, 0.08) 0%,
+                rgba(0, 122, 255, 0.04) 100%
+            );
+            backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+            -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.95),
+                inset 0 -1px 1px rgba(0, 122, 255, 0.15),
+                0 0 0 4px rgba(0, 122, 255, 0.15),
+                0 12px 48px rgba(0, 122, 255, 0.15),
+                0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        body.light-mode .option-card.selected {
+            background: linear-gradient(
+                135deg,
+                rgba(0, 122, 255, 0.15) 0%,
+                rgba(0, 122, 255, 0.08) 100%
+            );
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.95),
+                inset 0 -1px 1px rgba(0, 122, 255, 0.2),
+                0 0 0 3px rgba(0, 122, 255, 0.2),
+                0 12px 40px rgba(0, 122, 255, 0.2),
+                0 4px 16px rgba(0, 0, 0, 0.08);
         }
 
         .container {
@@ -337,31 +371,47 @@
         .form-group select {
             width: 100%;
             padding: 10px 12px;
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-
-            /* 🎨 PILIH SALAH SATU STYLE (Uncomment yang diinginkan) */
-
-            /* OPSI 1: Kebiruan Soft - iOS Natural (DEFAULT) */
-            background: rgba(65, 75, 90, 0.5);
-
-            /* OPSI 2: Abu Terang Smooth */
-            /* background: rgba(85, 85, 92, 0.5); */
-
-            /* OPSI 3: Ungu Gelap Elegant */
-            /* background: rgba(75, 70, 90, 0.5); */
-
-            /* OPSI 4: Hijau Gelap Natural */
-            /* background: rgba(65, 80, 75, 0.5); */
-
-            backdrop-filter: blur(24px) saturate(150%);
-            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            border: 0;
+            border-radius: 14px;
+            position: relative;
+            /* 🌊 Liquid Glass iOS Effect */
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 100%
+            );
+            backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+            -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.25),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.1),
+                0 8px 32px rgba(0, 0, 0, 0.2),
+                0 2px 8px rgba(0, 0, 0, 0.15);
             color: var(--text-primary);
             font-size: 0.95rem;
             font-family: inherit;
-            transition: all 0.3s var(--smooth);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             outline: none;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        /* 💫 Liquid Glass Border Shimmer */
+        .form-group input::before,
+        .form-group textarea::before,
+        .form-group select::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            padding: 1px;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.4) 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0.2) 100%
+            );
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
         }
 
         .form-group input::placeholder,
@@ -372,14 +422,21 @@
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
-            border-color: var(--ios-blue);
-            /* Sesuaikan dengan opsi yang dipilih di atas */
-            background: rgba(65, 75, 90, 0.7);  /* OPSI 1 */
-            /* background: rgba(85, 85, 92, 0.7); */  /* OPSI 2 */
-            /* background: rgba(75, 70, 90, 0.7); */  /* OPSI 3 */
-            /* background: rgba(65, 80, 75, 0.7); */  /* OPSI 4 */
-            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15), 0 8px 24px rgba(0, 0, 0, 0.18);
-            transform: translateY(-1px);
+            /* 🌀 Liquid Focus Effect */
+            background: linear-gradient(
+                135deg,
+                rgba(0, 122, 255, 0.15) 0%,
+                rgba(0, 122, 255, 0.08) 100%
+            );
+            backdrop-filter: blur(40px) saturate(200%) brightness(1.2);
+            -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.2);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.35),
+                inset 0 -1px 1px rgba(0, 122, 255, 0.2),
+                0 0 0 4px rgba(0, 122, 255, 0.2),
+                0 12px 48px rgba(0, 122, 255, 0.25),
+                0 4px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px) scale(1.005);
         }
 
         .form-group textarea {
@@ -410,27 +467,41 @@
             flex: 1;
             min-width: 120px;
             padding: 12px;
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            /* Gunakan warna yang sama dengan form inputs */
-            background: rgba(65, 75, 90, 0.5);  /* OPSI 1 */
-            /* background: rgba(85, 85, 92, 0.5); */  /* OPSI 2 */
-            /* background: rgba(75, 70, 90, 0.5); */  /* OPSI 3 */
-            /* background: rgba(65, 80, 75, 0.5); */  /* OPSI 4 */
-            backdrop-filter: blur(24px) saturate(150%);
-            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            border: 0;
+            border-radius: 14px;
+            position: relative;
+            /* 🌊 Liquid Glass iOS Effect */
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 100%
+            );
+            backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+            -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.25),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.1),
+                0 8px 32px rgba(0, 0, 0, 0.2),
+                0 2px 8px rgba(0, 0, 0, 0.15);
             cursor: pointer;
-            transition: all 0.3s var(--spring);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         .option-card:hover {
-            border-color: var(--ios-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.15) 0%,
+                rgba(255, 255, 255, 0.08) 100%
+            );
+            transform: translateY(-3px) scale(1.02);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.3),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.1),
+                0 12px 40px rgba(0, 0, 0, 0.25),
+                0 4px 12px rgba(0, 0, 0, 0.18);
         }
 
         .option-card input[type="radio"],
@@ -441,9 +512,19 @@
         }
 
         .option-card.selected {
-            border-color: var(--ios-blue);
-            background: rgba(0, 122, 255, 0.05);
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+            background: linear-gradient(
+                135deg,
+                rgba(0, 122, 255, 0.2) 0%,
+                rgba(0, 122, 255, 0.12) 100%
+            );
+            backdrop-filter: blur(40px) saturate(200%) brightness(1.15);
+            -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.15);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.35),
+                inset 0 -1px 1px rgba(0, 122, 255, 0.3),
+                0 0 0 3px rgba(0, 122, 255, 0.25),
+                0 12px 40px rgba(0, 122, 255, 0.3),
+                0 4px 16px rgba(0, 0, 0, 0.2);
         }
 
         .option-label {
