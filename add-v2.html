@@ -479,6 +479,7 @@
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
+            pointer-events: none; /* 🔧 Fix: Allow clicks through to input (especially for date picker) */
         }
 
         .form-group input::placeholder,
@@ -1074,9 +1075,9 @@
                                 <div class="form-hint required">Wajib diisi</div>
                             </div>
                             <div class="form-group">
-                                <label for="emailClient">✉️ Email Client <span class="required-badge">WAJIB</span></label>
+                                <label for="emailClient">✉️ Email Client</label>
                                 <input type="email" id="emailClient" name="emailClient" placeholder="client@email.com">
-                                <div class="form-hint required">Wajib diisi</div>
+                                <div class="form-hint">Opsional</div>
                             </div>
                         </div>
 
@@ -1393,10 +1394,10 @@
 
             if (!nama) errors.push('Nama Client');
             if (!accNo) errors.push('Account Number');
-            if (!emailClient) errors.push('Email Client');
+            // Email is now optional - removed validation
             if (!nomorCS) errors.push('Nomor CS');
 
-            // Validate email format
+            // Validate email format (only if filled)
             if (emailClient) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(emailClient)) {
@@ -1804,7 +1805,7 @@
             // Check required fields
             if (!data.nama) finalErrors.push('Nama Client');
             if (!data.accNo) finalErrors.push('Account Number');
-            if (!data.emailClient) finalErrors.push('Email Client');
+            // Email is now optional - removed validation
             if (!data.nomorCS) finalErrors.push('Nomor CS');
             if (!data.kitNumber) finalErrors.push('KIT Number');
             if (!data.serialNumber) finalErrors.push('Serial Number');
