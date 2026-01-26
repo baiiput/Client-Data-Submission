@@ -1137,7 +1137,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="payment">💳 Payment Method <span class="required-badge">WAJIB</span></label>
-                                <select id="payment" name="payment">
+                                <select id="payment" name="payment" onchange="toggleCustomPayment()">
                                     <option value="">Pilih payment...</option>
                                     <option value="TK-0900">TK-0900</option>
                                     <option value="BL-7519">BL-7519</option>
@@ -1147,9 +1147,17 @@
                                     <option value="L-7778">L-7778</option>
                                     <option value="L-3402">L-3402</option>
                                     <option value="Unknown">Unknown</option>
+                                    <option value="CUSTOM">✏️ Lainnya (Input Manual)</option>
                                 </select>
-                                <div class="form-hint required">Wajib dipilih</div>
+                                <div class="form-hint required">Wajib dipilih atau input manual</div>
                             </div>
+                        </div>
+
+                        <!-- Custom Payment Input (Hidden by default) -->
+                        <div class="form-group" id="customPaymentGroup" style="display: none;">
+                            <label for="customPayment">✏️ Input Payment Method Manual <span class="required-badge">WAJIB</span></label>
+                            <input type="text" id="customPayment" name="customPayment" placeholder="Contoh: TK-1234">
+                            <div class="form-hint required">Ketik payment method manual</div>
                         </div>
 
                         <div class="form-row">
@@ -1438,12 +1446,20 @@
 
             const tanggalJatuhTempo = document.getElementById('customDateInput').value.trim();
             const payment = document.getElementById('payment').value.trim();
+            const customPayment = document.getElementById('customPayment').value.trim();
             const status = document.getElementById('status').value.trim();
             const paket = document.getElementById('paket').value.trim();
             const last4Digit = document.getElementById('last4Digit').value.trim();
 
             if (!tanggalJatuhTempo) errors.push('Tanggal Jatuh Tempo');
-            if (!payment) errors.push('Payment Method');
+
+            // Check payment: if "CUSTOM" selected, must fill customPayment
+            if (!payment) {
+                errors.push('Payment Method');
+            } else if (payment === 'CUSTOM' && !customPayment) {
+                errors.push('Payment Method Manual (wajib diisi jika pilih "Lainnya")');
+            }
+
             if (!status) errors.push('Status');
             if (!paket) errors.push('Paket');
             if (!last4Digit) errors.push('Last 4 Digit');
@@ -1454,6 +1470,21 @@
             }
 
             return true;
+        }
+
+        // 💳 Toggle Custom Payment Input
+        function toggleCustomPayment() {
+            const payment = document.getElementById('payment').value;
+            const customPaymentGroup = document.getElementById('customPaymentGroup');
+            const customPaymentInput = document.getElementById('customPayment');
+
+            if (payment === 'CUSTOM') {
+                customPaymentGroup.style.display = 'block';
+                customPaymentInput.focus();
+            } else {
+                customPaymentGroup.style.display = 'none';
+                customPaymentInput.value = ''; // Clear custom value
+            }
         }
 
         // ✅ Confirmation Preview
@@ -1470,6 +1501,11 @@
             data.loginGmail = document.getElementById('loginGmail').value.trim();
             data.loginStarlink = document.getElementById('loginStarlink').value.trim();
             data.loginAlternatif = document.getElementById('loginAlternatif').value.trim();
+
+            // 💳 Handle Custom Payment for preview
+            if (data.payment === 'CUSTOM' && data.customPayment) {
+                data.payment = data.customPayment;
+            }
 
             const sections = [
                 {
@@ -1798,6 +1834,18 @@
                 data.noRegister = formatPhoneNumber(data.noRegister);
             }
 
+            // 💳 Handle Custom Payment
+            if (data.payment === 'CUSTOM') {
+                if (data.customPayment && data.customPayment.trim()) {
+                    data.payment = data.customPayment.trim();
+                    console.log('✅ Using custom payment method:', data.payment);
+                } else {
+                    console.error('❌ Custom payment selected but no value provided');
+                }
+            }
+            // Remove customPayment from data (not needed in submission)
+            delete data.customPayment;
+
             // 🛡️ FINAL VALIDATION BEFORE SUBMIT
             console.log('🔍 Running final validation...');
             const finalErrors = [];
@@ -1811,7 +1859,7 @@
             if (!data.serialNumber) finalErrors.push('Serial Number');
             if (!data.alamat) finalErrors.push('Alamat');
             if (!data.tanggalJatuhTempo) finalErrors.push('Tanggal Jatuh Tempo');
-            if (!data.payment) finalErrors.push('Payment Method');
+            if (!data.payment || data.payment === 'CUSTOM') finalErrors.push('Payment Method');
             if (!data.status) finalErrors.push('Status');
             if (!data.paket) finalErrors.push('Paket');
             if (!data.last4Digit) finalErrors.push('Last 4 Digit');
